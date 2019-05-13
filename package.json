@@ -1,0 +1,26 @@
+{
+  "name": "mentors",
+  "version": "1.0.0",
+  "description": "find mentors",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/incwell-technology/mentors.git"
+  },
+  "keywords": [
+    "mentors"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/incwell-technology/mentors/issues"
+  },
+  "homepage": "https://github.com/incwell-technology/mentors#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "nodemon": "^1.19.0"
+  }
+}
