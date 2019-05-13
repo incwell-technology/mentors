@@ -4,7 +4,8 @@
   "description": "find mentors",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,11 @@
   "homepage": "https://github.com/incwell-technology/mentors#readme",
   "dependencies": {
     "express": "^4.16.4",
-    "nodemon": "^1.19.0"
+    "express-session": "^1.16.1",
+    "mongo": "^0.1.0",
+    "mongoose": "^5.5.7",
+    "nodemon": "^1.19.0",
+    "passport": "^0.4.0",
+    "passport-linkedin": "^1.0.0"
   }
 }
