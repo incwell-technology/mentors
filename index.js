@@ -3,18 +3,29 @@ const passport = require('passport')
 const LinkedInStrategy = require('passport-linkedin').Strategy;
 const app = express()
 const signup = require('../mentors/routes/signUpRoute')
+const bodyParser = require('body-parser')
+const  mongoose = require('mongoose')
 
+const url = 'mongodb://localhost/Mentors'
+mongoose.connect(url,{ useNewUrlParser: true });
+mongoose.set('useCreateIndex', true)
 app.listen(3000, () =>
   console.log('Hello Mentors'),
 );
+
+app.use(bodyParser.json())
+app.use(passport.initialize())
+app.use(passport.session())
+app.use('/mentors/', signup)
+// app.use('/mentors/', login)
+
+
+
 app.use(require('express-session')({
   secret: 'keyboard cat',
   resave: true,
   saveUninitialized: true
 }));
-app.use(passport.initialize())
-app.use(passport.session())
-app.use('mentors/', signup)
 
 passport.use(
   new LinkedInStrategy({
