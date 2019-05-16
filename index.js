@@ -5,8 +5,13 @@ const app = express()
 const signup = require('../mentors/routes/signUpRoute')
 const bodyParser = require('body-parser')
 const  mongoose = require('mongoose')
+const dotenv = require('dotenv')
 
-const url = 'mongodb://localhost/Mentors'
+dotenv.config({
+  path:'./config/.env'
+})
+
+const url = process.env.DEVELOPMENT_DB_URL
 mongoose.connect(url,{ useNewUrlParser: true });
 mongoose.set('useCreateIndex', true)
 app.listen(3000, () =>
