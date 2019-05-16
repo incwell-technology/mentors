@@ -16,7 +16,8 @@ module.exports={
     },
     ok : {
         message : 'Ok'
-    }
-
-
+    },
+    ref_token : {
+        message : 'Invalid Refresh Token'
+    },
 }

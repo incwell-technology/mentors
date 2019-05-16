@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt')
 const secretKey = require('../config/secretKey')
 const errorMsg = require('../config/errorMsg')
 const statusCode = require('../config/statusCode')
-const tokenList = {}
 
 router.post('/signup', async(req,res)=>{
     const user =  await User.findOne({email:req.body.email})
@@ -62,67 +61,28 @@ router.post('/users', verifyToken, (req,res)=>{
     })
 })
 
-
-router.post('/login',async(req,res) => {
-    let user =  await User.findOne({email: req.body.email})
-    if(!user) res.json({message:errorMsg.auth_fail})
-    var result = await bcrypt.compare(req.body.password, user.password)
-    if(!result) {
-        return res.status(statusCode.forbidden.code).json({message:errorMsg.forbidden.message})
-    }
-    if(result) {
-        const token = jwt.sign({name : req.body.name, email: req.body.email}, secretKey.token.key, { expiresIn: '24h' })
-        const refreshToken = jwt.sign({name : req.body.name, email: req.body.email},secretKey.token.key,{expiresIn: '30d'})
-        const response = {
-            "status": "Logged in",
-            "token": token,
-            "refreshToken": refreshToken,
-        }
-        await User.updateOne({'email' : req.body.email },
-        { $push: { 'refreshToken' : refreshToken } })
-        tokenList[refreshToken] = response
-        res.status(statusCode.ok.code).json(response);
-    }
-})
-
-
-router.post('/logout', verifyToken, async(req,res)=>{
-    let user = await User.findOne({refreshToken:req.header})
-    jwt.verify(req.token,secretKey.token.key, async(err,authData)=>{
-        if(err){
-            res.status(statusCode.forbidden.code).json(errorMsg.forbidden.message)
-        }
-        else{
-            await User.updateOne({refreshToken : req.body.refreshToken },
-            { $pull: { 'refreshToken' : req.body.refreshToken } })
-            res.status(statusCode.ok.code).json({message : errorMsg.ok.message})
-        
-        }
-    })
-})
-
-
 router.post('/token', async (req,res) => {
     // refresh the token
-    let user =  await User.findOne({email: req.body.email})
-    if(!user) res.json({message:errorMsg.user_exists.message})
-    bcrypt.compare(req.body.password, user.password ,(err,result)=>{
-        if(!result) {
-            res.status(statusCode.forbidden.code).json({message:errorMsg.forbidden.message})
-        }
-        if(result) {
-            // if refresh token exists
-            if((req.body.refreshToken) && (req.body.refreshToken in tokenList)) {
-                const token = jwt.sign({name : req.body.name, email: req.body.email}, secretKey.token.key, { expiresIn: '24h'})
-                // update the token in the list
-                tokenList[req.body.refreshToken].token = token
-                res.status(statusCode.ok.code).json({token:token});        
-            } 
-            else {
-                res.json(errorMsg.invalid.message)
+    let user =  await User.findOne({refreshToken: req.body.refreshToken})
+    if(!user) res.json({message:errorMsg.ref_token.message})
+    if(user){
+        bcrypt.compare(req.body.password, user.password ,(err,result)=>{
+            if(!result) {
+                res.status(statusCode.forbidden.code).json({message:errorMsg.forbidden.message})
             }
-        }
-    })
+            if(result) {
+                // if refresh token exists
+                if(req.body.refreshToken) {
+                    const token = jwt.sign({name : req.body.name, email: req.body.email}, secretKey.token.key, { expiresIn: '24h'})
+                    // update the token in the list
+                    res.status(statusCode.ok.code).json({token:token});        
+                } 
+                else {
+                    res.json(errorMsg.invalid.message)
+                }
+            }
+        })
+    }
 })
 
 function verifyToken(req,res,next){
