@@ -5,8 +5,10 @@ var schema = mongoose.Schema({
     last_name :{type:String,required:true},
     email: {type:String, required:true,  unique:true},
     password : {type:String, required:true},
-    education : {type:String, required:true},
-    gender : {type:String,required:true},
+    dob : {type:Date, required:true},
+    phone : {type:Number,required:true},
+    address : {type:String,required:true},
+    user_role : {type:String,required:true},
     VerifiedEmail : {type: Boolean, default: false},
     refreshToken : {type:Array,required:true},
 })
