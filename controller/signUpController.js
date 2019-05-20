@@ -6,6 +6,7 @@ const utils = require('../validationUtil/utils')
 const nodemailer = require('nodemailer')
 const dotenv = require('dotenv')
 const http = require('http-status-codes')
+const salting = 10
 
 dotenv.config({
   path:'./config/.env'
@@ -33,7 +34,7 @@ exports.create = async(req,res)=>{
     }
     else{
         //hash with salting add random string 
-        bcrypt.hash(req.body.password, 10, async(err,hash) =>{
+        await bcrypt.hash(req.body.password, salting, async(err,hash) =>{
         if(err){
             return res.status(http.FORBIDDEN).json({status : 'failure',
             message:http.getStatusText(http.FORBIDDEN)
@@ -106,13 +107,14 @@ exports.create = async(req,res)=>{
                         "data" : user,
                         "message" : 'A verification email has been sent to ' + user.email + '.'
                     }
-                    res.status(http.OK).json({response})
+                    res.status(http.CREATED).json({response})
                 })
             } 
         } 
     })
     }    
 }
+
 
 exports.confirmation = (req,res)=>{
     if (req.query.token) {
