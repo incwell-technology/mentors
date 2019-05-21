@@ -4,7 +4,7 @@ exports.validate = (method) => {
     switch (method) {
         case 'createUser': 
             return [ 
-                body('email', `Email already exists`).exists(),
+                body('email', 'Email already exists').exists(),
                 body('email', 'Invalid email').isEmail(),
                 body('first_name','First name should not be empty').not().isEmpty(),
                 body('last_name','Last name should not be empty').not().isEmpty(),
@@ -17,15 +17,5 @@ exports.validate = (method) => {
                 }),
                 body('password','Invalid Password').matches('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})')
             ]
-        case 'jwt':
-            return verifyToken = (req,res,next) => {
-                const bearerHeader = req.headers['authorization'];
-                if(typeof bearerHeader !== 'undefined') {
-                    const bearer = bearerHeader.split(' ');
-                    const bearerToken = bearer[1];
-                    req.token = bearerToken;
-                    next();
-                }
-            }
     }
 }

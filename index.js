@@ -17,7 +17,6 @@ app.listen(3000, () =>
 );
 app.get('/',(req,res)=>{
   res.json({msg: "HELLO MENTORS"})})
-
-
+  
 app.use(bodyParser.json())
 app.use('/mentors/', signup)

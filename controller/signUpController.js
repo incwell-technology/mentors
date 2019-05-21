@@ -16,50 +16,41 @@ dotenv.config({
 exports.create = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
+        return res.status(http.UNPROCESSABLE_ENTITY).json({ errors: errors.array() });
     }
-    await bcrypt.hash(req.body.password, SALTING, async (err, hash) => {
-        if (err) {
-            return res.status(http.FORBIDDEN).json({
-                status: statusMsg.fail.msg,
-                message: http.getStatusText(http.FORBIDDEN)
-            });
-        }
-        else {
-            const token = jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: '24h' })
-            const refreshToken = await jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: '30d' })
-            const user = new User({
-                first_name: req.body.first_name,
-                last_name: req.body.last_name,
-                email: req.body.email,
-                password: hash,
-                refresh_token : refreshToken
-            })
-            user.save()
-            host = req.get('host')
-            email_verify.verifyEmail(user.email, host, token)
-            const response = {
-                "status": statusMsg.success.msg,
-                "accessToken": token,
-                "data": user,
-                "message": statusMsg.email.msg + user.email + '.'
-            }
-            res.status(http.CREATED).json({ response })
-        }
+    let hash = await bcrypt.hash(req.body.password, SALTING)
+    const token = await jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
+    const refresh_token = await jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: process.env.refresh_token_exp })
+    const user = new User({
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        email: req.body.email,
+        password: hash,
+        refresh_token: refresh_token
     })
+    user.save()
+    host = req.get('host')
+    await email_verify.verifyEmail(user.email, host, token)
+    const response = {
+        "status": statusMsg.success.msg,
+        "accessToken": token,
+        "data": user,
+        "message": statusMsg.email.msg + user.email + '.'
+    }
+    res.status(http.CREATED).json({ response })
+
 }
 
-
-exports.confirmation = (req, res) => {
+exports.confirmation = async(req, res) => {
     if (req.query.token) {
         try {
-            decoded = jwt.verify(req.query.token, secretKey.token.key);
+            decoded = await jwt.verify(req.query.token, secretKey.token.key);
         }
         catch (e) {
             return res.status(http.UNAUTHORIZED).json({ message: http.getStatusText(http.UNAUTHORIZED) });
         }
         const email = decoded.email;
-        User.findOne({ email: email }, (err, user) => {
+        await User.findOne({ email: email }, (err, user) => {
             if (!user) return res.status(http.BAD_REQUEST).send({ status: statusMsg.fail.msg, msg: http.getStatusText(http.BAD_REQUEST) });
             if (user.verified_email) return res.status(http.CONFLICT).send({ status: statusMsg.fail.msg, msg: http.getStatusText(http.CONFLICT) });
             user.verified_email = true
@@ -71,18 +62,12 @@ exports.confirmation = (req, res) => {
     }
 }
 
-exports.resendToken = (req, res) => {
-    User.findOne({ email: req.body.email }, async (err, user) => {
-        if (!user) return res.status(http.NOT_FOUND).json({ status: statusMsg.fail.msg, msg: http.getStatusText(http.NOT_FOUND)});
-        if (user.VerifiedEmail) return res.status(http.BAD_REQUEST).json({ status: statusMsg.fail.msg, msg: http.getStatusText(http.BAD_REQUEST)});
-
-        // Create a verification token, save it, and send email
-        const token = jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: '24h' })
-        if (err) {
-            return res.status(http.INTERNAL_SERVER_ERROR).json({ msg: http.getStatusText(http.INTERNAL_SERVER_ERROR) });
-        }
-        // Send the email
+exports.resendToken = async (req, res) => {
+    await User.findOne({ email: req.body.email }, async (err, user) => {
+        if (!user) return res.status(http.NOT_FOUND).json({ status: statusMsg.fail.msg, msg: http.getStatusText(http.NOT_FOUND) });
+        if (user.verified_email) return res.status(http.BAD_REQUEST).json({ status: statusMsg.fail.msg, msg: http.getStatusText(http.BAD_REQUEST) });
+        const token = await jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
         host = req.get('host');
-        email_verify.verifyEmail(user.email, host, token)
+        await email_verify.verifyEmail(user.email, host, token)
     })
 }
