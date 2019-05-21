@@ -37,18 +37,17 @@ exports.login = async (req, res) => {
 exports.refresh_token = async (req, res) => {
     let user = await User.findOne({ refresh_token: req.body.refresh_token })
     if (!user) return res.json({ message: http.getStatusText(http.UNAUTHORIZED) })
-    await bcrypt.compare(req.body.password, user.password, (err, result) => {
-        if (!result) {
-           return res.status(http.CONFLICT).json({ message: http.getStatusText(http.CONFLICT) })
-        }
-        if (req.body.refresh_token) {
-            const token = jwt.sign({ name: req.body.name, email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
-            res.status(http.OK).json({ status: statusMsg.success.msg, token: token });
-        }
-        else {
-            res.status(http.FORBIDDEN).json({ status: statusMsg.fail.msg, message: http.getStatusText(http.FORBIDDEN) })
-        }
-    })
+    result =await bcrypt.compare(req.body.password, user.password) 
+    if (!result) {
+        return res.status(http.CONFLICT).json({ message: http.getStatusText(http.CONFLICT) })
+    }
+    if (req.body.refresh_token) {
+        const token = await jwt.sign({ name: req.body.name, email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
+        res.status(http.OK).json({ status: statusMsg.success.msg, token: token });
+    }
+    else {
+        res.status(http.FORBIDDEN).json({ status: statusMsg.fail.msg, message: http.getStatusText(http.FORBIDDEN) })
+    }
 }
 
 exports.logout = async (req, res) => {
