@@ -1,7 +1,4 @@
-var exports =module.exports={}
-
 const nodemailer = require('nodemailer')
-const User = require('../models/user')
 
 exports.verifyEmail = async (email,host,token)=>{ 
     let transporter = nodemailer.createTransport({ service: process.env.GMAIL_SERVICE,

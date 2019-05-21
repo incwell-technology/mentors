@@ -37,7 +37,7 @@ exports.login = async (req, res) => {
 exports.refresh_token = async (req, res) => {
     let user = await User.findOne({ refresh_token: req.body.refresh_token })
     if (!user) return res.json({ message: http.getStatusText(http.UNAUTHORIZED) })
-    result =await bcrypt.compare(req.body.password, user.password) 
+    let result =await bcrypt.compare(req.body.password, user.password) 
     if (!result) {
         return res.status(http.CONFLICT).json({ message: http.getStatusText(http.CONFLICT) })
     }
