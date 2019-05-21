@@ -4,8 +4,8 @@ const nodemailer = require('nodemailer')
 const User = require('../models/user')
 
 exports.verifyEmail = async (email,host,token)=>{ 
-    let transporter = nodemailer.createTransport({ service: 'gmail',
-        port: 587, 
+    let transporter = nodemailer.createTransport({ service: process.env.GMAIL_SERVICE,
+        port: process.env.PORT, 
         secure :false,
         auth:{ user: process.env.GMAIL_USER, pass: process.env.GMAIL_PASSWORD } });
     let mailOptions = {  
