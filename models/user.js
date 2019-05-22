@@ -1,10 +1,21 @@
 const mongoose = require('mongoose')
-module.exports =  mongoose.model('User', mongoose.Schema({
-    name: {type:String, required:true},
-    email: {type:String, required:true,  unique:true,
-         match : /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/},
-    password : {type:String, required:true, 
-        match:/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/},
-    refreshToken : {type:Array}
-}))
+var schema = mongoose.Schema({
+    first_name: {type:String, required:true},
+    last_name :{type:String,required:true},
+    email: {type:String, required:true,  unique:true},
+    password : {type:String, required:true},
+    dob : {type:Date},
+    phone : {type:Number},
+    address : {type:String},
+    user_role : {type:String},
+    verified_email : {type: Boolean, default: false},
+    refresh_token : {type:Array,required:true},
+})
+schema.methods.toJSON = function () {
+    var obj = this.toObject()
+    delete obj.password
+    delete obj.refresh_token
+    return obj
+}
+module.exports = mongoose.model("User", schema)
 
