@@ -18,6 +18,9 @@ exports.create = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return res.status(http.UNPROCESSABLE_ENTITY).json({ errors: errors.array() });
     }
+    let role = null
+    if(req.body.user_role === 1) role = "Mentor"
+    else role ="student"
     let hash = await bcrypt.hash(req.body.password, SALTING)
     const access_token = await jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
     const refresh_token = await jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: process.env.refresh_token_exp })
@@ -25,6 +28,7 @@ exports.create = async (req, res, next) => {
         first_name: req.body.first_name,
         last_name: req.body.last_name,
         email: req.body.email,
+        user_role: role,
         password: hash,
         refresh_token: refresh_token
     })
