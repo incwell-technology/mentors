@@ -10,60 +10,68 @@ dotenv.config({
 })
 
 exports.login = async (req, res) => {
-    let user = await User.findOne({ email: req.body.email })
-    if (!user) return res.status(http.BAD_REQUEST).json({ "status": http.BAD_REQUEST, "message": http.getStatusText(http.BAD_REQUEST) })
-    let result = await bcrypt.compare(req.body.password, user.password)
-    if (!result) {
-        return res.status(http.CONFLICT).json({ "status": http.CONFLICT, "message": http.getStatusText(http.CONFLICT) })
-    }
-    if (user.verified_email) {
-        const access_token = await jwt.sign({ name: req.body.name, email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
-        const refresh_token = await jwt.sign({ name: req.body.name, email: req.body.email }, secretKey.token.key, { expiresIn: process.env.refresh_token_exp })
-        const response = {
-            "status": statusMsg.success.msg,
-            "accessToken": access_token,
-            "refreshToken": refresh_token,
-            "data": user
+    try {
+        let user = await User.findOne({ email: req.body.email })
+        if (!user) return res.status(http.BAD_REQUEST).json({ "status": http.BAD_REQUEST, "message": http.getStatusText(http.BAD_REQUEST) })
+        let result = await bcrypt.compare(req.body.password, user.password)
+        if (!result) {
+            return res.status(http.CONFLICT).json({ "status": http.CONFLICT, "message": http.getStatusText(http.CONFLICT) })
         }
-        try {
+        if (user.verified_email) {
+            const access_token = await jwt.sign({ name: req.body.name, email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
+            const refresh_token = await jwt.sign({ name: req.body.name, email: req.body.email }, secretKey.token.key, { expiresIn: process.env.refresh_token_exp })
+            const response = {
+                "status": statusMsg.success.msg,
+                "accessToken": access_token,
+                "refreshToken": refresh_token,
+                "data": user
+            }
             await user.refresh_token.push(refresh_token)
             await user.save()
+            res.status(http.OK).json(response);
         }
-        catch (err) {
-            res.status(http.NOT_MODIFIED).json(http.getStatusText(http.NOT_MODIFIED))
+        else {
+            res.status(http.CONFLICT).json({ status: statusMsg.fail.msg, message: http.getStatusText(http.CONFLICT) })
         }
-        res.status(http.OK).json(response);
     }
-    else {
-        res.status(http.CONFLICT).json({ status: statusMsg.fail.msg, message: http.getStatusText(http.CONFLICT) })
+    catch (err) {
+        res.status(http.FORBIDDEN).json({ "message": err.message })
+        next(err)
     }
 }
 
 exports.refreshToken = async (req, res) => {
-    let user = await User.findOne({ refresh_token: req.body.refresh_token })
-    if (!user) return res.json({ message: http.getStatusText(http.UNAUTHORIZED) })
-    let result = await bcrypt.compare(req.body.password, user.password)
-    if (!result) {
-        return res.status(http.CONFLICT).json({ message: http.getStatusText(http.CONFLICT) })
+    try {
+        let user = await User.findOne({ refresh_token: req.body.refresh_token })
+        if (!user) return res.status(http.UNAUTHORIZED).json({ message: http.getStatusText(http.UNAUTHORIZED) })
+        let result = await bcrypt.compare(req.body.password, user.password)
+        if (!result) {
+            return res.status(http.CONFLICT).json({ message: http.getStatusText(http.CONFLICT) })
+        }
+        if (req.body.refresh_token) {
+            const token = await jwt.sign({ name: req.body.name, email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
+            res.status(http.OK).json({ status: statusMsg.success.msg, token: token });
+        }
+        else {
+            res.status(http.FORBIDDEN).json({ status: statusMsg.fail.msg, message: http.getStatusText(http.FORBIDDEN) })
+        }
     }
-    if (req.body.refresh_token) {
-        const token = await jwt.sign({ name: req.body.name, email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
-        res.status(http.OK).json({ status: statusMsg.success.msg, token: token });
-    }
-    else {
-        res.status(http.FORBIDDEN).json({ status: statusMsg.fail.msg, message: http.getStatusText(http.FORBIDDEN) })
+    catch (err) {
+        res.status(htpp.FORBIDDEN).json({ "message": err.message })
+        next(err)
     }
 }
 
 exports.logout = async (req, res) => {
-    let user = await User.findOne({ refresh_token: req.body.refresh_token })
     try {
+        let user = await User.findOne({ refresh_token: req.body.refresh_token })
         let decoded = await jwt.verify(req.token, secretKey.token.key)
         await user.refresh_token.pull(req.body.refresh_token)
         await user.save()
         res.status(http.OK).json({ message: http.getStatusText(http.OK) })
     }
     catch (err) {
-        res.status(http.FORBIDDEN).json(http.getStatusText(http.FORBIDDEN))
+        res.status(http.FORBIDDEN).json({ "message": err.message })
+        next(err)
     }
 }
