@@ -23,12 +23,12 @@ exports.validate = (method) => {
                     return true;
                 }),
                 body('password', 'Invalid Password').matches('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})'),
-                body('password', 'Invalid Password').custom((value, { req }) => {
-                    if (body('password').contains(req.body.first_name, req.body.last_name,req.body.email.substr(0,req.body.email.indexOf('@')))) {
-                        throw new Error('Password should not contains name/email');
-                    }
-                    return true;
-                }),
+                // body('password', 'Invalid Password').custom((value, { req }) => {
+                //     if (body('password').contains(req.body.first_name) ){
+                //         throw new Error('Password should not contains name/email');
+                //     }
+                //     return true;
+                // }),
                 body('user_role', 'Invalid user role').isBoolean()
             ]
     }
