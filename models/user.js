@@ -8,7 +8,7 @@ var schema = mongoose.Schema({
     phone : {type:Number},
     address : {type:String},
     user_role : {type:String},
-    social_id : String,
+    facebook_id : String,
     verified_email : {type: Boolean, default: false},
     refresh_token : {type:Array,required:true},
 })
@@ -19,4 +19,3 @@ schema.methods.toJSON = function () {
     return obj
 }
 module.exports = mongoose.model("User", schema)
-
