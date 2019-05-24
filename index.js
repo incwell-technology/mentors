@@ -4,13 +4,16 @@ const signup = require('../mentors/routes/signUpRoute')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
+const socialAuth = require('../mentors/routes/socialAuth')
 
 dotenv.config({
-  path: './config/.env'
+  path: './config/variables.env'
 })
 
 const url = process.env.DEVELOPMENT_DB_URL
 mongoose.connect(url, { useNewUrlParser: true });
+
+mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true)
 app.listen(3000, () =>
   console.log('Hello Mentors'),
@@ -20,3 +23,4 @@ app.get('/',(req,res)=>{
   
 app.use(bodyParser.json())
 app.use('/mentors/', signup)
+app.use('/auth', socialAuth)
