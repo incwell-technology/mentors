@@ -24,7 +24,7 @@ module.exports.getMessage = async (googleToken) => {
                     statusCode: 200
                 };
             } else {
-                //if the google email exists in the db but is not linked, link the accoints
+                //if the google email exists in the db but is not linked, link the accounts
                 if (await dbQuery.emailExists(userInfo)) {
                     await dbQuery.updateWithId(userInfo);
                     return {
@@ -85,7 +85,7 @@ const dbQuery = {
         }
     },
     createAccount: async (userInfo, refresh_token) => {
-        user = {
+        let user = {
             first_name: userInfo.given_name,
             last_name : userInfo.family_name,
             email: userInfo.email,
