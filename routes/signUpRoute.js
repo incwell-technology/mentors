@@ -13,6 +13,6 @@ router.route('/confirmation').get(Register.confirmation)
 router.route('/resendToken').post(Register.resendToken)
 router.route('/login').post(Login.login)
 router.route('/refreshToken').post(Login.refreshToken)
-router.route('/logout').post(jwtValidation.verifyToken,Login.logout)
+router.route('/logout').post(jwtValidation.verifyToken, Login.logout)
 
 module.exports = router;

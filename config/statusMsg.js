@@ -1,11 +1,14 @@
-module.exports= {
-    success : {
-        msg : "Success"
+module.exports = {
+    success: {
+        msg: "Success"
     },
-    fail : {
-        msg : "Failure"
+    fail: {
+        msg: "Failure"
     },
-    email :{
-        msg: 'A verification email has been sent to '
-    }
+    email: {
+        msg: "A verification email has been sent to" 
+    },
+    token_exp: {
+        msg: "Token Expired"
+    },
 }
