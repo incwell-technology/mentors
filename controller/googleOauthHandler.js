@@ -2,10 +2,9 @@ require('dotenv').config({
     path: '../config/variables.env'
 });
 
-const jwt = require('jsonwebtoken');
 const googleOAuth = require('../middleware/googleOAuthClient');
 const User = require('../models/user');
-const secretKey = require('../config/secretKey');
+const tokenGenerator = require('./accessTokenGenerator');
 
 
 
@@ -50,25 +49,6 @@ module.exports.getMessage = async (googleToken) => {
         return { message: "BAD_REQUEST", statusCode: 400};
     }
 };
-
-
-const tokenGenerator = {
-    token: async (email) => {
-        return await jwt.sign({
-            email
-        }, secretKey.token.key, {
-            expiresIn: '24h'
-        });
-    },
-
-    refresh_token: async (email) => {
-        return await jwt.sign({
-            email
-        }, secretKey.token.key, {
-            expiresIn: `${24*7}h`
-        });
-    }
-}; 
 
 
 
