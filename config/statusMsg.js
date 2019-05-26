@@ -1,14 +1,29 @@
 module.exports = {
     success: {
-        msg: "Success"
+        msg: "true"
     },
     fail: {
-        msg: "Failure"
+        msg: "false"
     },
     email: {
-        msg: "A verification email has been sent to" 
+        msg: "A verification email has been sent to " 
     },
     token_exp: {
         msg: "Token Expired"
+    },
+    no_user:{
+        msg: "User not found"
+    },
+    not_verified: {
+        msg: "User is not verified"
+    },
+    password_not_match: {
+        msg: "Invalid Password"
+    },
+    error: {
+        msg: "Some error"
+    },
+    email_verfied: {
+        msg: "Email already verified"
     },
 }

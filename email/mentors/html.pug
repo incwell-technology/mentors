@@ -1,5 +1,15 @@
 doctype html
 html
     body
-        p Hello, Please verify your account by clicking the link: 
-        a(href = `http://${host}/mentors/confirmation/?token=${token}`) Verify 
+        p Hello #{name} ,
+        p You have registered in Mentors. Please verify your email 
+        a(href = `http://${host}/mentors/confirmation/?token=${token}`) 
+            button(type="button")  Verify
+        br
+        P Note: This verification link expires soon. Please verify soon. Thank You,
+        br   
+        br
+        p Mentors.
+        p Arun Thapa Chowk, Jhamsikhel,
+        p Nepal.
+        p 5555987, 6584658
