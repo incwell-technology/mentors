@@ -15,6 +15,7 @@ exports.validate = (method) => {
                 body('email', 'Invalid email').isEmail(),
                 body('first_name', 'First name should not be empty').not().isEmpty(),
                 body('last_name', 'Last name should not be empty').not().isEmpty(),
+                body('user_role','User role is required').not().isEmpty(),
                 body('password', 'Password name should not be empty').not().isEmpty(),
                 body('password').custom((value, { req }) => {
                     if (value !== req.body.confirm_password) {

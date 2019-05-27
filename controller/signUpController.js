@@ -8,23 +8,31 @@ const email_verify = require('./emailVerify')
 const statusMsg = require('../config/statusMsg')
 const SALTING = 10
 const { validationResult } = require('express-validator/check')
+const tokenGenerator = require('./authTokenGenerator')
 
 dotenv.config({
     path: './config/.env'
 })
 
 exports.create = async (req, res, next) => {
-    const errors = validationResult(req);
+    const errors = validationResult(req)
     if (!errors.isEmpty()) {
-        return res.status(http.UNPROCESSABLE_ENTITY).json({ errors: errors.array() });
+        return res.status(http.UNPROCESSABLE_ENTITY).json({
+            "success": statusMsg.fail.msg,
+            "payload": "",
+            "error": {
+                "code": http.UNPROCESSABLE_ENTITY,
+                "message": errors.array()
+            }
+        })
     }
     try {
         let role = null
         if (req.body.user_role == 1) { role = "Mentor" }
         else { role = "Student" }
         let hash = await bcrypt.hash(req.body.password, SALTING)
-        const access_token = await jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
-        const refresh_token = await jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: process.env.refresh_token_exp })
+        const access_token = await tokenGenerator.access_token(req.body.email)
+        const refresh_token = await tokenGenerator.refresh_token(req.body.email)
         const user = new User({
             first_name: req.body.first_name,
             last_name: req.body.last_name,
@@ -35,53 +43,66 @@ exports.create = async (req, res, next) => {
         })
         await user.save()
         host = req.get('host')
-        await email_verify.verifyEmail(user.email, host, access_token)
+        await email_verify.verifyEmail(user.email, user.first_name, host, access_token)
         const response = {
-            "status": statusMsg.success.msg,
             "accessToken": access_token,
             "data": user,
             "message": statusMsg.email.msg + user.email + '.'
         }
-        res.status(http.CREATED).json({ response })
+        res.status(http.CREATED).json({
+            "success": statusMsg.success.msg,
+            "payload": response
+        })
     }
     catch (err) {
-        res.status(http.CONFLICT).json({ "message": err.message })
+        err.status = http.CONFLICT
         next(err)
     }
 }
 
-exports.confirmation = async (req, res) => {
+exports.confirmation = async (req, res, next) => {
     try {
         if (req.query.token) {
-            decoded = await jwt.verify(req.query.token, secretKey.token.key);
-            const email = decoded.email;
+            decoded = await jwt.verify(req.query.token, secretKey.token.key)
+            const email = decoded.email
             let user = await User.findOne({ email: email })
-            if (!user) return res.status(http.BAD_REQUEST).send({ status: statusMsg.fail.msg, msg: http.getStatusText(http.BAD_REQUEST) });
-            if (user.verified_email) return res.status(http.CONFLICT).send({ status: statusMsg.fail.msg, msg: http.getStatusText(http.CONFLICT) });
+            if (!user) next(err.status = http.BAD_REQUEST)
+            if (user.verified_email) return res.status(http.CONFLICT).json({
+                "success": statusMsg.success.msg,
+                "message": statusMsg.email_verfied.msg
+            })
             user.verified_email = true
             await user.save()
-            res.status(http.OK).send({ status: statusMsg.success.msg, message: http.getStatusText(http.OK) });
+            res.status(http.OK).json({
+                "success": statusMsg.success.msg,
+                "message": http.getStatusText(http.OK)
+            })
         }
     }
     catch (err) {
-        res.status(http.UNAUTHORIZED).json({ message: err.message });
+        err.status = http.UNAUTHORIZED
         next(err)
     }
-
 }
 
-exports.resendToken = async (req, res) => {
+exports.resendVerification = async (req, res, next) => {
     try {
         let user = await User.findOne({ email: req.body.email })
-        if (!user) return res.status(http.FORBIDDEN).json({ status: statusMsg.fail.msg, msg: http.getStatusText(http.FORBIDDEN) });
-        if (user.verified_email) return res.status(http.BAD_REQUEST).json({ status: statusMsg.fail.msg, msg: http.getStatusText(http.BAD_REQUEST) });
-        const token = await jwt.sign({ email: req.body.email }, secretKey.token.key, { expiresIn: process.env.access_token_exp })
-        host = req.get('host');
-        await email_verify.verifyEmail(user.email, host, token)
+        if (!user) {
+            let err = new Error()
+            err.status = http.FORBIDDEN
+            next(err)
+        }
+        if (user.verified_email) return res.status(http.BAD_REQUEST).json({
+            "success": statusMsg.success.msg,
+            "message": statusMsg.email_verfied.msg
+        })
+        const token = await tokenGenerator.access_token(req.body.email)
+        host = req.get('host')
+        await email_verify.verifyEmail(user.email, user.first_name, host, token)
     }
     catch (err) {
-        res.status(http.UNAUTHORIZED).json({ "message": err.message })
+        err.status = http.UNAUTHORIZED
         next(err)
     }
-
 }

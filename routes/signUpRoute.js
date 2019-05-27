@@ -10,7 +10,7 @@ app.use(expressValidator())
 
 router.route('/signup').post(signupValidation.validate('createUser'), Register.create)
 router.route('/confirmation').get(Register.confirmation)
-router.route('/resendToken').post(Register.resendToken)
+router.route('/resendVerification').post(Register.resendVerification )
 router.route('/login').post(Login.login)
 router.route('/refreshToken').post(Login.refreshToken)
 router.route('/logout').post(jwtValidation.verifyToken, Login.logout)

@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 const cors = require('cors')
 const morgan = require('morgan')
+const errorHandler = require('./middleware/errorHandler')
 
 dotenv.config({
   path: './config/.env'
@@ -25,5 +26,6 @@ app.get('/', (req, res) => {
 app.use(bodyParser.json())
 app.use(cors())
 app.use(morgan('combined'))
-app.use('/mentors/', signup)
-app.use('/',social)
+app.use('/v1/mentors/', signup)
+app.use('/v1/auth/',social)
+app.use(errorHandler.errorHandler)
