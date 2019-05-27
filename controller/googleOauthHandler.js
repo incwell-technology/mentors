@@ -82,6 +82,6 @@ const dbQuery = {
             verified_email: true,
             refresh_token
         }
-        User.create(user);
+        await User.create(user);
     }
 };
