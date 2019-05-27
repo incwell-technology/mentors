@@ -1,3 +1,6 @@
+dotenv.config({
+    path: './config/.env'
+})
 const jwt = require('jsonwebtoken');
 const secretKey = require('../config/secretKey');
 
@@ -5,7 +8,7 @@ const access_token = async (email) => {
     return await jwt.sign({
         email
     }, secretKey.token.key, {
-        expiresIn: '24h'
+        expiresIn: process.env.access_token_exp
     });
 };
 
@@ -13,7 +16,7 @@ const refresh_token = async (email) => {
     return await jwt.sign({
         email
     }, secretKey.token.key, {
-        expiresIn: `${24*30}h`
+        expiresIn: process.env.refresh_token_exp
     });
 };
 

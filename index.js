@@ -9,7 +9,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 
 dotenv.config({
-  path: './config/variables.env'
+  path: './config/.env'
 })
 
 const url = process.env.DEVELOPMENT_DB_URL

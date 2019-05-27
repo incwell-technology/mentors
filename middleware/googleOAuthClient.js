@@ -1,5 +1,5 @@
 require('dotenv').config({
-    path: '../config/variables.env'
+    path: '../config/.env'
 });
 
 const google = require('googleapis').google;

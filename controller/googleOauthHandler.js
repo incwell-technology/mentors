@@ -1,5 +1,5 @@
 require('dotenv').config({
-    path: '../config/variables.env'
+    path: '../config/.env'
 });
 
 const httpStatus = require('http-status-codes');
@@ -25,7 +25,7 @@ module.exports.oauthHandler = async (req, res) => {
         };
 
         try {
-            //If the google id already exists in the db, store only refresh token in the db
+            //If the google id already exists in the db, update refresh token in the db
             if (await dbQuery.idExists(userInfo.id)) {
                 return res.status(httpStatus.OK).json({
                     "success": statusMsg.success.msg,

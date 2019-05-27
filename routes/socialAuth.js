@@ -1,6 +1,3 @@
-require('dotenv').config({
-    path: 'variables.env'
-});
 const router = require('express').Router();
 const google = require('../controller/googleOauthHandler')
 
