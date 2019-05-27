@@ -27,5 +27,5 @@ app.get('/', (req, res) => {
 app.use(bodyParser.json())
 app.use(cors())
 app.use(morgan('combined'))
-app.use('/mentors/', signup)
-app.use('/auth', socialAuth)
+app.use('v1/mentors/', signup)
+app.use('v1/auth', socialAuth)
