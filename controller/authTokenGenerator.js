@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const secretKey = require('../config/secretKey');
 
-const token = async (email) => {
+const access_token = async (email) => {
     return await jwt.sign({
         email
     }, secretKey.token.key, {
@@ -13,10 +13,10 @@ const refresh_token = async (email) => {
     return await jwt.sign({
         email
     }, secretKey.token.key, {
-        expiresIn: `${24*7}h`
+        expiresIn: `${24*30}h`
     });
 };
 
 module.exports = {
-    token, refresh_token
+    access_token, refresh_token
 };

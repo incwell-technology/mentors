@@ -2,9 +2,10 @@ require('dotenv').config({
     path: '../config/variables.env'
 });
 
+const httpStatus = require('http-status-codes');
 const googleOAuth = require('../middleware/googleOAuthClient');
 const User = require('../models/user');
-const tokenGenerator = require('./accessTokenGenerator');
+const tokenGenerator = require('./authTokenGenerator');
 
 
 
@@ -13,40 +14,46 @@ module.exports.getMessage = async (googleToken) => {
         const response = await googleOAuth.getUserInfo(googleToken);
         const userInfo = response.data;
 
-        const token = await tokenGenerator.token(userInfo.email);
+        const access_token = await tokenGenerator.access_token(userInfo.email);
         const refresh_token = await tokenGenerator.refresh_token(userInfo.email);
 
         try {
             //If the google id already exists in the db, store nothing to the db
             if (await dbQuery.idExists(userInfo)) {
                 return { 
-                    message: token,
-                    statusCode: 200
+                    message: access_token,
+                    statusCode: httpStatus.OK
                 };
             } else {
                 //if the google email exists in the db but is not linked, link the accounts
                 if (await dbQuery.emailExists(userInfo)) {
                     await dbQuery.updateWithId(userInfo);
                     return {
-                        message: token,
-                        statusCode: 200
+                        message: access_token,
+                        statusCode: httpStatus.OK
                     };
                 } else {
                     //otherwise, create a new account
                     await dbQuery.createAccount(userInfo, refresh_token);
                     return {
-                        message: token,
-                        statusCode: 201
+                        message: access_token,
+                        statusCode: httpStatus.CREATED
                     };
                 }
             }
         } catch(error) {
             console.log(error);
-            return { message:"Error connecting database", statusCode: 500}
+            return {
+                message: httpStatus.getStatusText(httpStatus.INTERNAL_SERVER_ERROR),
+                statusCode: httpStatus.INTERNAL_SERVER_ERROR
+            }
         }
     } catch(error) {
         console.log(error);
-        return { message: "BAD_REQUEST", statusCode: 400};
+        return {
+            message: httpStatus.getStatusText(httpStatus.BAD_REQUEST),
+            statusCode: httpStatus.BAD_REQUEST
+        };
     }
 };
 
