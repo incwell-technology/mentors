@@ -13,6 +13,7 @@ module.exports.getMessage = async (googleToken) => {
     try {
         const response = await googleOAuth.getUserInfo(googleToken);
         const userInfo = response.data;
+        console.log(response);
 
         const access_token = await tokenGenerator.access_token(userInfo.email);
         const refresh_token = await tokenGenerator.refresh_token(userInfo.email);
@@ -61,35 +62,15 @@ module.exports.getMessage = async (googleToken) => {
 
 const dbQuery = {
     idExists: async (userInfo) => {
-        try {
-            const googleId = await User.findOne({ google_id: userInfo.id });
-            if (googleId === null) {
-               return false;
-            } else {
-                return true;
-            }
-        } catch(error) {
-            console.log(error);
-        }
+        const googleId = await User.findOne({ google_id: userInfo.id });
+        return googleId;
     },
     emailExists: async (userInfo) => {
-        try {
-            const googleEmail = await User.findOne({ email: userInfo.email });
-            if (googleEmail === null) {
-                return false;
-            } else {
-                return true;
-            }
-        } catch(error) {
-            console.log(error);
-        }
+        const googleEmail = await User.findOne({ email: userInfo.email });
+        return googleEmail;
     },
     updateWithId: async (userInfo) => {
-        try {
-            await User.findOneAndUpdate({email: userInfo.email}, {google_id: userInfo.id});
-        } catch(error) {
-            console.log(error);
-        }
+        await User.findOneAndUpdate({email: userInfo.email}, {google_id: userInfo.id, refresh_token});
     },
     createAccount: async (userInfo, refresh_token) => {
         let user = {
@@ -100,10 +81,6 @@ const dbQuery = {
             verified_email: true,
             refresh_token
         }
-        try {
-            User.create(user);
-        } catch(error) {
-            console.log(error);
-        }
+        User.create(user);
     }
 };
