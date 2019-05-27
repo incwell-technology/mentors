@@ -17,41 +17,56 @@ module.exports.getMessage = async (googleToken) => {
         const access_token = await tokenGenerator.access_token(userInfo.email);
         const refresh_token = await tokenGenerator.refresh_token(userInfo.email);
 
+        const payload = {
+            access_token,
+            refresh_token,
+            data: userInfo
+        };
+
         try {
             //If the google id already exists in the db, store nothing to the db
             if (await dbQuery.idExists(userInfo)) {
-                return { 
-                    message: access_token,
-                    statusCode: httpStatus.OK
-                };
+                return res.status(httpStatus.OK).json({
+                    "success": statusMsg.success.msg,
+                    "payload": payload
+                });
+
             //if the google email exists in the db, link the accounts
             } else if (await dbQuery.emailExists(userInfo)) {
                 await dbQuery.updateWithId(userInfo, refresh_token);
-                return {
-                    message: access_token,
-                    statusCode: httpStatus.OK
-                };
+                return res.status(httpStatus.OK).json({
+                    "success": statusMsg.success.msg,
+                    "payload": payload
+                });
             } else {
                 //otherwise, create a new account
                 await dbQuery.createAccount(userInfo, refresh_token);
-                return {
-                    message: access_token,
-                    statusCode: httpStatus.CREATED
-                };
+                return res.status(httpStatus.CREATED).json({
+                    "success": statusMsg.success.msg,
+                    "payload": payload
+                });
             }
         } catch(error) {
             console.log(error);
-            return {
-                message: httpStatus.getStatusText(httpStatus.INTERNAL_SERVER_ERROR),
-                statusCode: httpStatus.INTERNAL_SERVER_ERROR
-            }
+            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+                "success": statusMsg.fail.msg,
+                "payload": {},
+                "error": {
+                    "code": httpStatus.INTERNAL_SERVER_ERROR,
+                    "message": statusMsg.database_error.msg
+                }
+            });
         }
     } catch(error) {
         console.log(error);
-        return {
-            message: httpStatus.getStatusText(httpStatus.BAD_REQUEST),
-            statusCode: httpStatus.BAD_REQUEST
-        };
+        return res.status(httpStatus.BAD_REQUEST).json({
+            "success": statusMsg.fail.msg,
+            "payload": {},
+            "error": {
+                "code": httpStatus.BAD_REQUEST,
+                "message": statusMsg.token_exp.msg
+            }
+        });
     }
 };
 
