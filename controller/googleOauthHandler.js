@@ -6,12 +6,13 @@ const httpStatus = require('http-status-codes');
 const googleOAuth = require('../middleware/googleOAuthClient');
 const User = require('../models/user');
 const tokenGenerator = require('./authTokenGenerator');
+const statusMsg = require('../config/statusMsg')
 
 
-
-module.exports.getMessage = async (googleToken) => {
+module.exports.oauthHandler = async (req, res) => {
+    let googleAuthToken = req.body.accessToken;
     try {
-        const response = await googleOAuth.getUserInfo(googleToken);
+        const response = await googleOAuth.getUserInfo(googleAuthToken);
         const userInfo = response.data;
 
         const access_token = await tokenGenerator.access_token(userInfo.email);
@@ -24,22 +25,21 @@ module.exports.getMessage = async (googleToken) => {
         };
 
         try {
-            //If the google id already exists in the db, store nothing to the db
-            if (await dbQuery.idExists(userInfo)) {
+            //If the google id already exists in the db, store only refresh token in the db
+            if (await dbQuery.idExists(userInfo.id)) {
                 return res.status(httpStatus.OK).json({
                     "success": statusMsg.success.msg,
                     "payload": payload
                 });
-
             //if the google email exists in the db, link the accounts
-            } else if (await dbQuery.emailExists(userInfo)) {
+            } else if (await dbQuery.emailExists(userInfo.email)) {
                 await dbQuery.updateWithId(userInfo, refresh_token);
                 return res.status(httpStatus.OK).json({
                     "success": statusMsg.success.msg,
                     "payload": payload
                 });
+            //otherwise, create a new account
             } else {
-                //otherwise, create a new account
                 await dbQuery.createAccount(userInfo, refresh_token);
                 return res.status(httpStatus.CREATED).json({
                     "success": statusMsg.success.msg,
@@ -73,17 +73,16 @@ module.exports.getMessage = async (googleToken) => {
 
 
 const dbQuery = {
-    idExists: async (userInfo, refresh_token) => {
-        const googleId = await User.findOne({ google_id: userInfo.id });
+    idExists: async (id, refresh_token) => {
+        const googleId = await User.findOne({ google_id: id });
         if (googleId) {
             await googleId.refresh_token.push(refresh_token);
             await googleId.save();
         }
         return googleId;
     },
-    emailExists: async (userInfo) => {
-        const googleEmail = await User.findOne({ email: userInfo.email });
-        return googleEmail;
+    emailExists: async (email) => {
+        return await User.findOne({ email });
     },
     updateWithId: async (userInfo, refresh_token) => {
         await User.findOneAndUpdate({email: userInfo.email}, {google_id: userInfo.id, refresh_token});
