@@ -3,7 +3,7 @@ require('dotenv').config({
 });
 
 const httpStatus = require('http-status-codes');
-const googleOAuth = require('../middleware/googleOAuthClient');
+const googleOAuth = require('../middleware/googleOauthClient');
 const User = require('../models/user');
 const tokenGenerator = require('./authTokenGenerator');
 const statusMsg = require('../config/statusMsg')

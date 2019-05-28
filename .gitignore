@@ -63,5 +63,3 @@ config/variables.env
 .next
 
 secretKey.js
-
-config

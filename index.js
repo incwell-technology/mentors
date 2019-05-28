@@ -1,12 +1,13 @@
 const express = require('express')
 const app = express()
 const signup = require('../mentors/routes/signUpRoute')
+const social = require('../mentors/routes/socialRoute')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
-const socialAuth = require('../mentors/routes/socialAuth')
 const cors = require('cors')
 const morgan = require('morgan')
+const errorHandler = require('./middleware/errorHandler')
 
 dotenv.config({
   path: './config/.env'
@@ -27,5 +28,6 @@ app.get('/', (req, res) => {
 app.use(bodyParser.json())
 app.use(cors())
 app.use(morgan('combined'))
-app.use('v1/mentors/', signup)
-app.use('v1/auth', socialAuth)
+app.use('/v1/mentors/', signup)
+app.use('/v1/auth/',social)
+app.use(errorHandler.errorHandler)

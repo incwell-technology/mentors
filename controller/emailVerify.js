@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer')
 const path = require('path');
 var EmailTemplate = require('email-templates');
-exports.verifyEmail = async (email, host, token) => {
+exports.verifyEmail = async (email, name, host, token) => {
     let transporter = nodemailer.createTransport({
         service: process.env.GMAIL_SERVICE,
         port: process.env.PORT,
@@ -19,9 +19,11 @@ exports.verifyEmail = async (email, host, token) => {
     emails.send({
         template: path.join(__dirname, '..', 'email', 'mentors'),
         message: {
-            to: email
+            to: email,
+            subject: "Account Verification"
         },
         locals: {
+            name: name,
             host: host,
             token: token
         }
