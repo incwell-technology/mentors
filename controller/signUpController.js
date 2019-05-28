@@ -33,28 +33,47 @@ exports.create = async (req, res, next) => {
         let hash = await bcrypt.hash(req.body.password, SALTING)
         const access_token = await tokenGenerator.access_token(req.body.email)
         const refresh_token = await tokenGenerator.refresh_token(req.body.email)
-        const user = new User({
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            email: req.body.email,
-            user_role: role,
-            password: hash,
-            refresh_token: refresh_token
-        })
-        await user.save()
-        host = req.get('host')
-        await email_verify.verifyEmail(user.email, user.first_name, host, access_token)
-        const response = {
-            "accessToken": access_token,
-            "data": user,
-            "message": statusMsg.email.msg + user.email + '.'
+        let email = await User.findOne({ email: req.body.email })
+        if (email) {
+            if (typeof email.password === 'undefined') {
+                email.password = hash
+                await email.save()
+            }
+            const response = {
+                "accessToken": access_token,
+                "data": email
+            }
+            res.status(http.CREATED).json({
+                "success": statusMsg.success.msg,
+                "payload": response
+            })
         }
-        res.status(http.CREATED).json({
-            "success": statusMsg.success.msg,
-            "payload": response
-        })
+        else if (!email) {
+            const user = new User({
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                email: req.body.email,
+                user_role: role,
+                password: hash,
+                refresh_token: refresh_token
+            })
+            await user.save()
+            host = req.get('host')
+            await email_verify.verifyEmail(user.email, user.first_name, host, access_token)
+            const response = {
+                "accessToken": access_token,
+                "data": user,
+                "message": statusMsg.email.msg + user.email + '.'
+            }
+            res.status(http.CREATED).json({
+                "success": statusMsg.success.msg,
+                "payload": response
+            })
+        }
+
     }
     catch (err) {
+        console.log(err)
         err.status = http.CONFLICT
         next(err)
     }

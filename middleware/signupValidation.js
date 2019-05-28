@@ -7,8 +7,10 @@ exports.validate = (method) => {
             return [
                 body('email').custom(async (value, { req }) => {
                     let user = await User.findOne({ email: req.body.email })
-                    if (user) {
-                        throw new Error('Email already exists');
+                    if(user){
+                        if (typeof user.password !== 'undefined') {
+                            throw new Error('Email already exists');
+                        }
                     }
                     return true;
                 }),
