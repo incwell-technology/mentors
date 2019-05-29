@@ -9,7 +9,7 @@ const statusMsg = require('../config/statusMsg')
 const SALTING = 10
 const { validationResult } = require('express-validator/check')
 const tokenGenerator = require('./authTokenGenerator')
-
+const createUser = require('../dbQuery/createUser')
 dotenv.config({
     path: './config/.env'
 })
@@ -29,46 +29,25 @@ exports.create = async (req, res, next) => {
     try {
         let role = null
         if (req.body.user_role == 1) { role = "Mentor" }
-        else { role = "Student" }
+        else if (req.body.user_role == 0) { role = "Student" }
         let hash = await bcrypt.hash(req.body.password, SALTING)
-        const access_token = await tokenGenerator.access_token(req.body.email)
-        const refresh_token = await tokenGenerator.refresh_token(req.body.email)
         let email = await User.findOne({ email: req.body.email })
         if (email) {
             if (typeof email.password === 'undefined') {
                 email.password = hash
+                email.user_role = role
                 await email.save()
+                const response = {
+                    "data": email
+                }
+                res.status(http.CREATED).json({
+                    "success": statusMsg.success.msg,
+                    "payload": response
+                })
             }
-            const response = {
-                "accessToken": access_token,
-                "data": email
-            }
-            res.status(http.CREATED).json({
-                "success": statusMsg.success.msg,
-                "payload": response
-            })
         }
         else if (!email) {
-            const user = new User({
-                first_name: req.body.first_name,
-                last_name: req.body.last_name,
-                email: req.body.email,
-                user_role: role,
-                password: hash,
-                refresh_token: refresh_token
-            })
-            await user.save()
-            host = req.get('host')
-            await email_verify.verifyEmail(user.email, user.first_name, host, access_token)
-            const response = {
-                "accessToken": access_token,
-                "data": user,
-                "message": statusMsg.email.msg + user.email + '.'
-            }
-            res.status(http.CREATED).json({
-                "success": statusMsg.success.msg,
-                "payload": response
-            })
+            createUser.createUser(req, res)
         }
 
     }
@@ -85,7 +64,11 @@ exports.confirmation = async (req, res, next) => {
             decoded = await jwt.verify(req.query.token, secretKey.token.key)
             const email = decoded.email
             let user = await User.findOne({ email: email })
-            if (!user) next(err.status = http.BAD_REQUEST)
+            if (!user) {
+                let err = new Error()
+                err.status = http.CONFLICT
+                next(err)
+            }
             if (user.verified_email) return res.status(http.CONFLICT).json({
                 "success": statusMsg.success.msg,
                 "message": statusMsg.email_verfied.msg

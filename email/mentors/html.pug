@@ -1,15 +1,22 @@
 doctype html
 html
+    head
+        style 
+            include style.css
     body
-        p Hello #{name} ,
-        p You have registered in Mentors. Please verify your email 
-        a(href = `http://${host}/v1/mentors/confirmation/?token=${token}`) 
-            button(type="button")  Verify
-        br
-        P Note: This verification link expires soon. Please verify soon. Thank You,
-        br   
-        br
-        p Mentors.
-        p Arun Thapa Chowk, Jhamsikhel,
-        p Nepal.
-        p 5555987, 6584658
+        div
+            center
+                img(src='http://goo.gl/gEgYUd' alt='some text')
+            p Hello #{name} ,
+            p You have registered in Mentors. Please verify your email 
+            center
+                a(href = `http://${host}/v1/mentors/confirmation/?token=${token}`) 
+                    button(type="button")  Verify
+            br
+            P Note: This verification link expires soon. Please verify soon. Thank You,
+            br   
+            br
+            p Mentors.
+            p Arun Thapa Chowk, Jhamsikhel,
+            p Nepal.
+            p 5555987, 6584658

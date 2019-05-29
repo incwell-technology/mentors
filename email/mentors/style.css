@@ -1,0 +1,27 @@
+img {
+    margin:10px;
+}
+div{
+    width:400px;
+    margin: 0 auto;
+    border: 1px solid black;
+}
+p{
+    margin: 5px;
+    margin-bottom: 2px;
+    padding: 0px;
+    font-size: 14px;
+}
+button{
+    background-color: #303f9f; /* #3f51b5*/ 
+    border: none;
+    border-radius: 12px;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+}

@@ -15,6 +15,7 @@ dotenv.config({
 
 const url = process.env.DEVELOPMENT_DB_URL
 mongoose.connect(url, { useNewUrlParser: true });
+mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true)
 app.listen(3000, () =>
   console.log('Hello Mentors'),

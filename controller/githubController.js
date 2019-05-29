@@ -1,5 +1,5 @@
-const dotenv = require('dotenv')
 const request = require('request')
+const dotenv = require('dotenv')
 const User = require('../models/user')
 const http = require('http-status-codes')
 const statusMsg = require('../config/statusMsg')
@@ -8,28 +8,39 @@ dotenv.config({
     path: './config/.env'
 })
 
-exports.facebook = async (req, res, next) => {
+exports.github = async (req, res, next) => {
     try {
-        const fb_access_token = req.body.accessToken
-        await request(`https://graph.facebook.com/v3.3/me?fields=id,first_name,last_name,email&access_token=${fb_access_token}`,
+        github_access_token = req.body.access_token
+        await request(`https://api.github.com/user?access_token=${github_access_token}`, {
+            headers: {
+                'user-agent': 'Mentors'
+            }
+        },
             async (err, response) => {
                 const userInfo = JSON.parse(response.body)
+                const name = userInfo.name.split(' ', 2)
+                const data = {
+                    id: userInfo.id,
+                    first_name: name[0],
+                    last_name: name[1],
+                    email: userInfo.email,
+                }
                 const access_token = await tokenGenerator.access_token(userInfo.email)
                 const refresh_token = await tokenGenerator.refresh_token(userInfo.email)
                 const payload = {
                     "accessToken": access_token,
                     "refreshToken": refresh_token,
-                    "data": userInfo
+                    "data": data
                 }
                 try {
-                    if (await dbQuery.idExists(userInfo, refresh_token)) {
+                    if (await dbQuery.idExists(data, refresh_token)) {
                         return res.status(http.OK).json({
                             "success": statusMsg.success.msg,
                             "payload": payload
                         })
                     }
-                    else if (await dbQuery.emailExists(userInfo)) {
-                        await dbQuery.updateWithId(userInfo, refresh_token)
+                    else if (await dbQuery.emailExists(data)) {
+                        await dbQuery.updateWithId(data, refresh_token)
                         return res.status(http.OK).json({
                             "success": statusMsg.success.msg,
                             "payload": payload
@@ -38,11 +49,16 @@ exports.facebook = async (req, res, next) => {
                     else if (!userInfo.email) {
                         return res.status(http.CONFLICT).json({
                             "success": statusMsg.fail.msg,
-                            "payload": userInfo
+                            "payload": data,
+                            "error": {
+                                "code": http.CONFLICT,
+                                "message": http.CONFLICT
+                            }
+
                         })
                     }
                     else {
-                        await dbQuery.createAccount(userInfo, refresh_token)
+                        await dbQuery.createAccount(data, refresh_token)
                         return res.status(http.CREATED).json({
                             "success": statusMsg.success.msg,
                             "payload": payload
@@ -62,31 +78,32 @@ exports.facebook = async (req, res, next) => {
     }
 }
 
+
 const dbQuery = {
-    idExists: async (userInfo, refresh_token) => {
-        const facebookId = await User.findOne({ facebook_id: userInfo.id })
-        if (facebookId) {
-            await facebookId.refresh_token.push(refresh_token)
-            await facebookId.save()
+    idExists: async (data, refresh_token) => {
+        const githubId = await User.findOne({ github_id: data.id })
+        if (githubId) {
+            await githubId.refresh_token.push(refresh_token)
+            await githubId.save()
         }
-        return facebookId
+        return githubId
     },
-    emailExists: async (userInfo) => {
-        const facebookEmail = await User.findOne({ email: userInfo.email })
-        return facebookEmail
+    emailExists: async (data) => {
+        const githubEmail = await User.findOne({ email: data.email })
+        return githubEmail
     },
-    updateWithId: async (userInfo, refresh_token) => {
-        let user = await User.findOne({ email: userInfo.email })
-        user.facebook_id = userInfo.id
-        user.refresh_token.push(refresh_token)
+    updateWithId: async (data, refresh_token) => {
+        let user = await User.findOne({ email: data.email })
+        user.github_id = data.id
+        await user.refresh_token.push(refresh_token)
         await user.save()
     },
-    createAccount: async (userInfo, refresh_token) => {
+    createAccount: async (data, refresh_token) => {
         let user = {
-            first_name: userInfo.first_name,
-            last_name: userInfo.last_name,
-            email: userInfo.email,
-            facebook_id: userInfo.id,
+            first_name: data.first_name,
+            last_name: data.last_name,
+            email: data.email,
+            github_id: data.id,
             verified_email: true,
             refresh_token: refresh_token
         }

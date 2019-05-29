@@ -49,7 +49,7 @@ exports.login = async (req, res, next) => {
                 "payload": response
             })
         }
-        else if(!user.passsword){
+        else if (!user.passsword) {
             let err = new Error()
             err.status = http.FORBIDDEN
             next(err)
@@ -97,8 +97,10 @@ exports.logout = async (req, res, next) => {
     try {
         let user = await User.findOne({ refresh_token: req.body.refresh_token })
         let decoded = await jwt.verify(req.token, secretKey.token.key)
-        await user.refresh_token.pull(req.body.refresh_token)
-        await user.save()
+        if (decoded) {
+            await user.refresh_token.pull(req.body.refresh_token)
+            await user.save()
+        }
         res.status(http.OK).json({
             "success": statusMsg.success.msg,
             "payload": ""
