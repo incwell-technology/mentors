@@ -12,19 +12,9 @@ const statusMsg = require('../config/statusMsg')
 module.exports.oauthHandler = async (req, res) => {
     let linkedinAuthToken = req.body.accessToken;
     try {
-        let userInfo = {};
-        let emailResponse = JSON.parse(
-            await linkedinOAuth.getEmail(linkedinAuthToken)
-        );
-        userInfo.email = emailResponse.elements[0]["handle~"].emailAddress;
-        console.log(userInfo.email);
-        let profileResponse = JSON.parse(
-            await linkedinOAuth.getProfile(linkedinAuthToken)
-        );
-        userInfo.firstName = profileResponse.localizedFirstName;
-        userInfo.lastName = profileResponse.localizedLastName;
-        userInfo.linkedinId = profileResponse.id;
-        console.log(userInfo.linkedinId);            
+        let userInfo = await linkedinOAuth.getProfile(linkedinAuthToken);
+        userInfo.email =  await linkedinOAuth.getEmail(linkedinAuthToken);
+
         const access_token = await tokenGenerator.access_token(userInfo.email);
         const refresh_token = await tokenGenerator.refresh_token(userInfo.email);
 
@@ -36,12 +26,18 @@ module.exports.oauthHandler = async (req, res) => {
 
         try {
             //If the linkedin id already exists in the db, update refresh token in the db
-            if (await dbQuery.idExists(userInfo.linkedinId)) {
+            if (await dbQuery.idExists(userInfo.linkedinId, refresh_token)) {
                 return res.status(httpStatus.OK).json({
                     "success": statusMsg.success.msg,
                     "payload": payload
                 });
-                //if the linkedin email exists in the db, link the accounts
+            //if linkedin account doesn't have email, send error message 
+            } else if (!userInfo.email) {
+                return res.status(http.CONFLICT).json({
+                    "success": statusMsg.fail.msg,
+                    "payload": userInfo
+                })
+            //if the linkedin email exists in the db, link the accounts
             } else if (await dbQuery.emailExists(userInfo.email)) {
                 await dbQuery.updateWithId(userInfo, refresh_token);
                 return res.status(httpStatus.OK).json({
@@ -84,7 +80,7 @@ module.exports.oauthHandler = async (req, res) => {
 
 const dbQuery = {
     idExists: async (id, refresh_token) => {
-        const linkedinId = await User.findOne({
+        let linkedinId = await User.findOne({
             linkedin_id: id
         });
         if (linkedinId) {
@@ -99,19 +95,19 @@ const dbQuery = {
         });
     },
     updateWithId: async (userInfo, refresh_token) => {
-        await User.findOneAndUpdate({
+        let linkedin = await User.findOne({
             email: userInfo.email
-        }, {
-            linkedin_id: userInfo.linkedinId,
-            refresh_token
         });
+        linkedin.linkedin_id = userInfo.linkedinId;
+        await linkedin.refresh_token.push(refresh_token);
+        await linkedin.save();
     },
     createAccount: async (userInfo, refresh_token) => {
         let user = {
-            first_name: userInfo.given_name,
-            last_name: userInfo.family_name,
+            first_name: userInfo.firstName,
+            last_name: userInfo.lastName,
             email: userInfo.email,
-            linkedin_id: userInfo.id,
+            linkedin_id: userInfo.linkedinId,
             verified_email: true,
             refresh_token
         }
