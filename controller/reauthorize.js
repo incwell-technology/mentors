@@ -3,6 +3,7 @@ const statusMsg = require('../config/statusMsg')
 const tokenGenerator = require('./authTokenGenerator')
 const { validationResult } = require('express-validator/check')
 const http = require('http-status-codes')
+const email_verify = require('./emailVerify')
 const bcrypt = require('bcrypt')
 const SALTING = 10
 
