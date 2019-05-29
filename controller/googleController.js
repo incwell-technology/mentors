@@ -85,7 +85,12 @@ const dbQuery = {
         return await User.findOne({ email });
     },
     updateWithId: async (userInfo, refresh_token) => {
-        await User.findOneAndUpdate({email: userInfo.email}, {google_id: userInfo.id, refresh_token});
+        let google = await User.findOne({
+            email: userInfo.email
+        });
+        google.google_id = userInfo.id;
+        await google.refresh_token.push(refresh_token);
+        await google.save();
     },
     createAccount: async (userInfo, refresh_token) => {
         let user = {
