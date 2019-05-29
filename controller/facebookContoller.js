@@ -34,7 +34,7 @@ exports.facebook = async (req, res, next) => {
                             "success": statusMsg.success.msg,
                             "payload": payload
                         })
-                    }
+                    }     
                     else if (!userInfo.email) {
                         return res.status(http.CONFLICT).json({
                             "success": statusMsg.fail.msg,
