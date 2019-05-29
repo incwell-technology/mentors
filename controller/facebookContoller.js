@@ -33,7 +33,7 @@ exports.facebook = async (req, res, next) => {
                         return res.status(http.OK).json({
                             "success": statusMsg.success.msg,
                             "payload": payload
-                        })
+                         })
                     }     
                     else if (!userInfo.email) {
                         return res.status(http.CONFLICT).json({
