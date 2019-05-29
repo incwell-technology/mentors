@@ -14,6 +14,7 @@ var schema = mongoose.Schema({
     user_role: { type: String },
     google_id: Number,
     facebook_id: { type: String },
+    linkedin_id: { type: String },
     verified_email: { type: Boolean, default: false },
     refresh_token: { type: Array, required: true, expires: process.env.refresh_token_exp },
 })
