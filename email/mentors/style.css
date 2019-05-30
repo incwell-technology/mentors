@@ -1,27 +1,39 @@
-img {
-    margin:10px;
+body{
+    background-color: whitesmoke;
+    font-family: 'Roboto', sans-serif;
 }
-div{
-    width:400px;
-    margin: 0 auto;
-    border: 1px solid black;
+.header{
+    text-align: center;
+    margin: 53px auto 19px auto;
+    color: #3f51b5;
+    font-size: 27px;
 }
-p{
-    margin: 5px;
-    margin-bottom: 2px;
-    padding: 0px;
-    font-size: 14px;
+.box{
+    background-color: #fff;
+    width: 50%;
+    height: 50%;
+    margin: auto;
 }
+.icon{
+    color: #3f51b5;
+    font-size: 50px;
+    text-align: center;
+}
+.text{
+    text-align: center;
+    margin: auto;
+    color: grey;
+}
+
 button{
-    background-color: #303f9f; /* #3f51b5*/ 
+    background-color: #3f51b5;
     border: none;
-    border-radius: 12px;
     color: white;
-    padding: 10px;
+    padding: 15px 50px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 14px;
-    margin: 4px 2px;
+    font-size: 16px;
+    margin: auto;
     cursor: pointer;
 }

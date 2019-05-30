@@ -19,7 +19,7 @@ exports.create = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return res.status(http.UNPROCESSABLE_ENTITY).json({
             "success": statusMsg.fail.msg,
-            "payload": "",
+            "payload": {},
             "error": {
                 "code": http.UNPROCESSABLE_ENTITY,
                 "message": errors.array()
@@ -37,19 +37,18 @@ exports.create = async (req, res, next) => {
                 email.password = hash
                 email.user_role = role
                 await email.save()
-                const response = {
+                const payload = {
                     "data": email
                 }
                 res.status(http.CREATED).json({
                     "success": statusMsg.success.msg,
-                    "payload": response
+                    "payload": payload
                 })
             }
         }
         else if (!email) {
             createUser.createUser(req, res)
         }
-
     }
     catch (err) {
         console.log(err)
@@ -95,7 +94,7 @@ exports.resendVerification = async (req, res, next) => {
             err.status = http.FORBIDDEN
             next(err)
         }
-        if (user.verified_email) return res.status(http.BAD_REQUEST).json({
+        if (user.verified_email) return res.status(http.CONFLICT).json({
             "success": statusMsg.success.msg,
             "message": statusMsg.email_verfied.msg
         })

@@ -26,4 +26,7 @@ module.exports = {
     email_verfied: {
         msg: "Email already verified"
     },
+    no_email: {
+        msg: "Email not authorized"
+    }
 }

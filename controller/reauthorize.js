@@ -12,7 +12,7 @@ exports.reauthorize = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return res.status(http.UNPROCESSABLE_ENTITY).json({
             "success": statusMsg.fail.msg,
-            "payload": "",
+            "payload": { },
             "error": {
                 "code": http.UNPROCESSABLE_ENTITY,
                 "message": errors.array()
