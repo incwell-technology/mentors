@@ -5,18 +5,25 @@ const http = require('http-status-codes')
 const secretKey = require('../config/secretKey')
 const statusMsg = require('../config/statusMsg')
 const dotenv = require('dotenv')
+const { validationResult } = require('express-validator/check')
 dotenv.config({
     path: './config/.env'
 })
 const tokenGenerator = require('./authTokenGenerator')
 
 exports.login = async (req, res, next) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(http.UNPROCESSABLE_ENTITY).json({
+            "success": statusMsg.fail.msg,
+            "payload": { },
+            "error": {
+                "code": http.UNPROCESSABLE_ENTITY,
+                "message": errors.array()
+            }
+        })
+    }
     try {
-        if (req.body.email === '' || req.body.password === '') {
-            let err = new Error()
-            err.status = http.CONFLICT
-            next(err)
-        }
         let user = await User.findOne({ email: req.body.email })
         if (!user) {
             let err = new Error()
@@ -27,7 +34,7 @@ exports.login = async (req, res, next) => {
         if (!result) {
             return res.status(http.BAD_REQUEST).json({
                 "success": statusMsg.fail.msg,
-                "payload": { email: req.body.email },
+                "payload": { },
                 "error": {
                     "code": http.BAD_REQUEST,
                     "message": statusMsg.password_not_match.msg
@@ -37,7 +44,7 @@ exports.login = async (req, res, next) => {
         if (user.verified_email && user.password) {
             const access_token = await tokenGenerator.access_token(req.body.email)
             const refresh_token = await tokenGenerator.refresh_token(req.body.email)
-            const response = {
+            const payload = {
                 "accessToken": access_token,
                 "refreshToken": refresh_token,
                 "data": user
@@ -46,10 +53,10 @@ exports.login = async (req, res, next) => {
             await user.save()
             res.status(http.OK).json({
                 "success": statusMsg.success.msg,
-                "payload": response
+                "payload": payload
             })
         }
-        else if(!user.passsword){
+        else if (!user.passsword) {
             let err = new Error()
             err.status = http.FORBIDDEN
             next(err)
@@ -97,11 +104,13 @@ exports.logout = async (req, res, next) => {
     try {
         let user = await User.findOne({ refresh_token: req.body.refresh_token })
         let decoded = await jwt.verify(req.token, secretKey.token.key)
-        await user.refresh_token.pull(req.body.refresh_token)
-        await user.save()
+        if (decoded) {
+            await user.refresh_token.pull(req.body.refresh_token)
+            await user.save()
+        }
         res.status(http.OK).json({
             "success": statusMsg.success.msg,
-            "payload": ""
+            "payload": { }
         })
     }
     catch (err) {

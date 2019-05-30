@@ -1,0 +1,40 @@
+body{
+    background-color: whitesmoke;
+    font-family: 'Roboto', sans-serif;
+}
+.header{
+    text-align: center;
+    margin: 53px auto 19px auto;
+    color: #3f51b5;
+    font-size: 27px;
+}
+.box{
+    background-color: #fff;
+    width: 50%;
+    height: 50%;
+    margin: auto;
+}
+img{
+    color: #3f51b5;
+    margin: 10px;
+    height: 35px;
+    width: 35px;
+}
+.text{
+    text-align: center;
+    margin: auto;
+    color: grey;
+}
+
+button{
+    background-color: #3f51b5;
+    border: none;
+    color: white;
+    padding: 15px 50px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: auto;
+    cursor: pointer;
+}

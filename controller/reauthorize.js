@@ -1,9 +1,9 @@
 const User = require('../models/user')
+const http = require('http-status-codes')
 const statusMsg = require('../config/statusMsg')
 const tokenGenerator = require('./authTokenGenerator')
-const { validationResult } = require('express-validator/check')
-const http = require('http-status-codes')
 const email_verify = require('./emailVerify')
+const { validationResult } = require('express-validator/check')
 const bcrypt = require('bcrypt')
 const SALTING = 10
 
@@ -12,7 +12,7 @@ exports.reauthorize = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return res.status(http.UNPROCESSABLE_ENTITY).json({
             "success": statusMsg.fail.msg,
-            "payload": "",
+            "payload": { },
             "error": {
                 "code": http.UNPROCESSABLE_ENTITY,
                 "message": errors.array()
@@ -21,11 +21,8 @@ exports.reauthorize = async (req, res, next) => {
     }
     try {
         let role = null
-        if (req.body.user_role == 1) {
-            role = "Mentor"
-        } else {
-            role = "Student"
-        }
+        if (req.body.user_role == 1) { role = "Mentor" }
+        else if (req.body.role == 0) { role = "Student" }
         let hash = await bcrypt.hash(req.body.password, SALTING)
         const access_token = await tokenGenerator.access_token(req.body.email)
         const refresh_token = await tokenGenerator.refresh_token(req.body.email)
@@ -41,7 +38,6 @@ exports.reauthorize = async (req, res, next) => {
         host = req.get('host')
         await email_verify.verifyEmail(user.email, user.first_name, host, access_token)
         const response = {
-            "accessToken": access_token,
             "data": user,
             "message": statusMsg.email.msg + user.email + '.'
         }
@@ -49,7 +45,9 @@ exports.reauthorize = async (req, res, next) => {
             "success": statusMsg.success.msg,
             "payload": response
         })
-    } catch (err) {
+    }
+    catch (err) {
+        console.log(err)
         err.status = http.CONFLICT
         next(err)
     }

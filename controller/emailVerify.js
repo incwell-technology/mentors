@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer')
 const path = require('path');
 var EmailTemplate = require('email-templates');
 exports.verifyEmail = async (email, name, host, token) => {
-    let transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransport({
         service: process.env.GMAIL_SERVICE,
         port: process.env.PORT,
         secure: false,

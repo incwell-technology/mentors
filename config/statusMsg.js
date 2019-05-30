@@ -28,5 +28,8 @@ module.exports = {
     },
     database_error: {
         msg: "Database Error"
+    },
+    no_email: {
+        msg: "Email not authorized"
     }
 }

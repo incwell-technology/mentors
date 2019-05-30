@@ -1,15 +1,28 @@
 doctype html
 html
+    head
+        style 
+            include style.css
+            //- include all.css
+            //- link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Roboto&display=swap")
+            //- link(rel="stylesheet", href="all.css")
     body
-        p Hello #{name} ,
-        p You have registered in Mentors. Please verify your email 
-        a(href = `http://${host}/v1/mentors/confirmation/?token=${token}`) 
-            button(type="button")  Verify
-        br
-        P Note: This verification link expires soon. Please verify soon. Thank You,
-        br   
-        br
-        p Mentors.
-        p Arun Thapa Chowk, Jhamsikhel,
-        p Nepal.
-        p 5555987, 6584658
+        div(class="header")
+            p ineedmentor.com 
+        div(class="box")
+            div(class="icon") 
+                center
+                    img(src="https://i.ibb.co/tpD3Qd6/font-awesome-4-7-0-envelope-o-463-9-007dff-none.png")
+                br
+            div(class="text") 
+                p Hello #{name} ,
+                p You're almost ready to start.
+                p Click the button below to verify your email address.
+            div(class="text")
+                a(href = `http://${host}/v1/mentors/confirmation/?token=${token}`) 
+                    button(type="button")  Verify
+            div(class='text')
+                p This verification link expires soon. Please verify soon.
+                p Thankyou,
+                a(href='ineedmentor.com')
+                    ineedmentor.com

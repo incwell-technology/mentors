@@ -4,21 +4,31 @@ const statusMsg = require('../config/statusMsg')
 const tokenGenerator = require('./authTokenGenerator')
 const socialAuth = require('../dbQuery/socialAuth')
 
-exports.facebook = (req, res, next) => {
-    const fb_access_token = req.body.accessToken
-    request(`https://graph.facebook.com/v3.3/me?fields=id,first_name,last_name,email&access_token=${fb_access_token}`,
+exports.github = (req, res, next) => {
+    github_access_token = req.body.access_token
+    request(`https://api.github.com/user?access_token=${github_access_token}`, {
+        headers: {
+            'user-agent': 'Mentors'
+        }
+    },
         async (err, response) => {
             const userInfo = JSON.parse(response.body)
-            console.log(userInfo)
+            const name = userInfo.name.split(' ', 2)
+            const data = {
+                id: userInfo.id,
+                first_name: name[0],
+                last_name: name[1],
+                email: userInfo.email,
+            }
             const access_token = await tokenGenerator.access_token(userInfo.email)
             const refresh_token = await tokenGenerator.refresh_token(userInfo.email)
             const payload = {
                 "accessToken": access_token,
                 "refreshToken": refresh_token,
-                "data": userInfo
+                "data": data
             }
             try {
-                if (await socialAuth.dbQuery.isExistingUser({ facebook_id: userInfo.id })) {
+                if (await socialAuth.dbQuery.isExistingUser({ github_id: userInfo.id })) {
                     await socialAuth.dbQuery.pushRefreshToken(userInfo, refresh_token)
                     return res.status(http.OK).json({
                         "success": statusMsg.success.msg,
@@ -26,7 +36,7 @@ exports.facebook = (req, res, next) => {
                     })
                 }
                 else if (await socialAuth.dbQuery.doesUserExistWithEmail(userInfo)) {
-                    await socialAuth.dbQuery.addSocialId(userInfo, 'facebook_id')
+                    await socialAuth.dbQuery.addSocialId(userInfo, 'github_id')
                     await socialAuth.dbQuery.pushRefreshToken(userInfo, refresh_token)
                     console.log('some')
                     return res.status(http.OK).json({
@@ -45,7 +55,7 @@ exports.facebook = (req, res, next) => {
                     })
                 }
                 else {
-                    await socialAuth.dbQuery.createAccount('facebook_id', userInfo, refresh_token)
+                    await socialAuth.dbQuery.createAccount('github_id', data, refresh_token)
                     return res.status(http.CREATED).json({
                         "success": statusMsg.success.msg,
                         "payload": payload
