@@ -22,14 +22,10 @@ const getProfile = async (bearerToken) => {
     return { 
         firstName: profileResponse.localizedFirstName,
         lastName: profileResponse.localizedLastName,
-        linkedinId: profileResponse.id
+        id: profileResponse.id
     };
 };
 
 module.exports = {
     getEmail, getProfile
 }
-
-
-
-
