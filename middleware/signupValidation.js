@@ -7,14 +7,17 @@ exports.validate = (method) => {
             return [
                 body('email').custom(async (value, { req }) => {
                     let user = await User.findOne({ email: req.body.email })
-                    if (user) {
-                        throw new Error('Email already exists');
+                    if(user){
+                        if (typeof user.password !== 'undefined') {
+                            throw new Error('Email already exists');
+                        }
                     }
                     return true;
                 }),
                 body('email', 'Invalid email').isEmail(),
                 body('first_name', 'First name should not be empty').not().isEmpty(),
                 body('last_name', 'Last name should not be empty').not().isEmpty(),
+                body('user_role','User role is required').not().isEmpty(),
                 body('password', 'Password name should not be empty').not().isEmpty(),
                 body('password').custom((value, { req }) => {
                     if (value !== req.body.confirm_password) {
@@ -24,7 +27,7 @@ exports.validate = (method) => {
                 }),
                 body('password', 'Invalid Password').matches('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})'),
                 // body('password', 'Invalid Password').custom((value, { req }) => {
-                //     if (body('password').contains(req.body.first_name) ){
+                //     if (body('password').contains(req.body.first_name, req.body.last_name,req.body.email.substr(0,req.body.email.indexOf('@')))) {
                 //         throw new Error('Password should not contains name/email');
                 //     }
                 //     return true;
