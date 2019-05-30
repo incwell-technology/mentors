@@ -16,7 +16,7 @@ exports.verifyEmail = async (email, name, host, token) => {
         transport: transporter,
         preview: false
     });
-    emails.send({
+    await emails.send({
         template: path.join(__dirname, '..', 'email', 'mentors'),
         message: {
             to: email,

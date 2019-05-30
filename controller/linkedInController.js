@@ -23,23 +23,22 @@ module.exports.oauthHandler = async (req, res) => {
             refresh_token,
             data: userInfo
         };
-
         try {
             //If the linkedin id already exists in the db, update refresh token in the db
-            if (await dbQuery.idExists(userInfo.linkedinId, refresh_token)) {
+            if (await dbQuery.isExistingUser(userInfo.linkedinId, refresh_token)) {
                 return res.status(httpStatus.OK).json({
                     "success": statusMsg.success.msg,
                     "payload": payload
                 });
-            //if linkedin account doesn't have email, send error message 
+            //if the linkedin account doesn't have email, send error message 
             } else if (!userInfo.email) {
                 return res.status(http.CONFLICT).json({
                     "success": statusMsg.fail.msg,
                     "payload": userInfo
                 })
-            //if the linkedin email exists in the db, link the accounts
-            } else if (await dbQuery.emailExists(userInfo.email)) {
-                await dbQuery.updateWithId(userInfo, refresh_token);
+            //if the linkedin email exists in the db, add linkedin id
+            } else if (await dbQuery.doesUserExistWithEmail(userInfo.email)) {
+                await dbQuery.addLinkedinId(userInfo, refresh_token);
                 return res.status(httpStatus.OK).json({
                     "success": statusMsg.success.msg,
                     "payload": payload
@@ -79,7 +78,7 @@ module.exports.oauthHandler = async (req, res) => {
 
 
 const dbQuery = {
-    idExists: async (id, refresh_token) => {
+    isExistingUser: async (id, refresh_token) => {
         let linkedinId = await User.findOne({
             linkedin_id: id
         });
@@ -89,18 +88,18 @@ const dbQuery = {
         }
         return linkedinId;
     },
-    emailExists: async (email) => {
+    doesUserExistWithEmail: async (email) => {
         return await User.findOne({
             email
         });
     },
-    updateWithId: async (userInfo, refresh_token) => {
-        let linkedin = await User.findOne({
+    addLinkedinId: async (userInfo, refresh_token) => {
+        let document = await User.findOne({
             email: userInfo.email
         });
-        linkedin.linkedin_id = userInfo.linkedinId;
-        await linkedin.refresh_token.push(refresh_token);
-        await linkedin.save();
+        document.linkedin_id = userInfo.linkedinId;
+        await document.refresh_token.push(refresh_token);
+        await document.save();
     },
     createAccount: async (userInfo, refresh_token) => {
         let user = {
