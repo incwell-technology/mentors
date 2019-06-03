@@ -27,15 +27,12 @@ exports.create = async (req, res, next) => {
         })
     }
     try {
-        let role = null
-        if (req.body.user_role == 1) { role = "Mentor" }
-        else if (req.body.user_role == 0) { role = "Student" }
-        let hash = await bcrypt.hash(req.body.password, SALTING)
+        const hash = await bcrypt.hash(req.body.password, SALTING)
         let email = await User.findOne({ email: req.body.email })
         if (email) {
             if (typeof email.password === 'undefined') {
                 email.password = hash
-                email.user_role = role
+                email.user_role = req.body.user_role
                 await email.save()
                 const payload = {
                     "data": email

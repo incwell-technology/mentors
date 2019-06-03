@@ -1,8 +1,8 @@
 const User = require('../models/user')
 
 exports.dbQuery = {
-    isExistingUser: async (userInfo) => {
-        const id = await User.findOne(userInfo)
+    isExistingUser: async (key, userInfo) => {
+        const id = await User.findOne({ [key]: userInfo.id })
         return id
     },
     doesUserExistWithEmail: async (userInfo) => {
@@ -11,6 +11,9 @@ exports.dbQuery = {
     },
     addSocialId: async (userInfo, key) => {
         await User.findOneAndUpdate({ email: userInfo.email }, { [key]: userInfo.id })
+    },
+    updateVerifyEmail: async (userInfo) => {
+        await User.findOneAndUpdate({ email: userInfo.email }, { verified_email: true })
     },
     pushRefreshToken: async (userInfo, refresh_token) => {
         let user = await User.findOne({ email: userInfo.email })

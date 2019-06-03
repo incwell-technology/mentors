@@ -1,10 +1,10 @@
 const nodemailer = require('nodemailer')
-const path = require('path');
-var EmailTemplate = require('email-templates');
+const path = require('path')
+const EmailTemplate = require('email-templates')
 exports.verifyEmail = async (email, name, host, token) => {
     const transporter = nodemailer.createTransport({
         service: process.env.GMAIL_SERVICE,
-        port: process.env.PORT,
+        port: process.env.EMAIL_PORT,
         secure: false,
         auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_PASSWORD }
     });

@@ -4,7 +4,7 @@ body{
 }
 .header{
     text-align: center;
-    margin: 53px auto 19px auto;
+    /* margin: 53px auto 1px auto; */
     color: #3f51b5;
     font-size: 27px;
 }
@@ -13,12 +13,18 @@ body{
     width: 50%;
     height: 50%;
     margin: auto;
+    margin-top: -5px;
 }
 img{
     color: #3f51b5;
-    margin: 10px;
-    height: 35px;
-    width: 35px;
+    margin-top: 20px;
+    height: auto;
+    width: 40px;
+}
+.logo{
+    margin-top: 13px;
+    height: auto;
+    width: 18%;
 }
 .text{
     text-align: center;

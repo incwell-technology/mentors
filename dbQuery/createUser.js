@@ -7,16 +7,13 @@ const statusMsg = require('../config/statusMsg')
 const SALTING = 10
 
 exports.createUser = async (req, res) => {
-    let role = null
-    if (req.body.user_role == 1) { role = "Mentor" }
-    else if (req.body.user_role == 0) { role = "Student" }
     const hash = await bcrypt.hash(req.body.password, SALTING)
     const access_token = await tokenGenerator.access_token(req.body.email)
     const user = new User({
         first_name: req.body.first_name,
         last_name: req.body.last_name,
         email: req.body.email,
-        user_role: role,
+        user_role: req.body.user_role,
         password: hash,
     })
     await user.save()
