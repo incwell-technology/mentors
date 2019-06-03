@@ -28,7 +28,7 @@ module.exports.oauthHandler = async (req, res) => {
         try {
             socialQuery.socialQueryController('linkedin_id', userInfo, payload, res)
         } catch (err) {
-            err.status = http.INTERNAL_SERVER_ERROR
+            err.status = httpStatus.INTERNAL_SERVER_ERROR
             next(err)
         }
         // try {

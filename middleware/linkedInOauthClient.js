@@ -20,8 +20,8 @@ const getProfile = async (bearerToken) => {
     });
     profileResponse = JSON.parse(profileResponse);
     return { 
-        firstName: profileResponse.localizedFirstName,
-        lastName: profileResponse.localizedLastName,
+        first_name: profileResponse.localizedFirstName,
+        last_name: profileResponse.localizedLastName,
         id: profileResponse.id
     };
 };
