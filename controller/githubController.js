@@ -27,7 +27,7 @@ exports.github = (req, res, next) => {
                 "data": data
             }
             try {
-                socialQuery.socialQueryController('github_id', userInfo, payload, res)
+                socialQuery.socialQueryController('github_id', data, payload, res)
             }
             catch (err) {
                 err.status = http.INTERNAL_SERVER_ERROR

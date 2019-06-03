@@ -3,17 +3,17 @@ const socialAuth = require('../dbQuery/socialAuth')
 const statusMsg = require('../config/statusMsg')
 
 exports.socialQueryController = async (key, userInfo, payload, res) => {
-    if (await socialAuth.dbQuery.isExistingUser(key, userInfo)) {
-        await socialAuth.dbQuery.pushRefreshToken(userInfo, payload.refreshToken)
+    if (await socialAuth.dbQuery.isExistingUser(key, userInfo.id)) {
+        await socialAuth.dbQuery.pushRefreshToken(userInfo.email, payload.refreshToken)
         return res.status(http.OK).json({
             "success": statusMsg.success.msg,
             "payload": payload
         })
     }
-    else if (await socialAuth.dbQuery.doesUserExistWithEmail(userInfo)) {
+    else if (await socialAuth.dbQuery.doesUserExistWithEmail(userInfo.email)) {
         await socialAuth.dbQuery.addSocialId(userInfo, key)
-        await socialAuth.dbQuery.updateVerifyEmail(userInfo)
-        await socialAuth.dbQuery.pushRefreshToken(userInfo, payload.refreshToken)
+        await socialAuth.dbQuery.updateVerifyEmail(userInfo.email)
+        await socialAuth.dbQuery.pushRefreshToken(userInfo.email, payload.refreshToken)
         return res.status(http.OK).json({
             "success": statusMsg.success.msg,
             "payload": payload
