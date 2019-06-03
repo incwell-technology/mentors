@@ -4,6 +4,7 @@ const statusMsg = require('../config/statusMsg')
 
 exports.socialQueryController = async (key, userInfo, payload, res) => {
     if (await socialAuth.dbQuery.isExistingUser(key, userInfo.id)) {
+        console.log(await socialAuth.dbQuery.isExistingUser(key, userInfo.id));
         await socialAuth.dbQuery.pushRefreshToken(userInfo.email, payload.refreshToken)
         return res.status(http.OK).json({
             "success": statusMsg.success.msg,

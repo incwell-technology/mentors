@@ -28,7 +28,7 @@ exports.errorHandler = (err, req, res, next) => {
             "payload": "",
             "error": {
                 "code": http.BAD_REQUEST,
-                "message": statusMsg.no_user.msg
+                "message": http.getStatusText(http.BAD_REQUEST)
             }
         })
     }
