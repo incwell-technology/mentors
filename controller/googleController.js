@@ -28,10 +28,10 @@ module.exports.oauthHandler = async (req, res) => {
         };
         
         try {
-            socialQuery.socialQueryController('google_id', userInfo, payload, res)
+            socialQuery.socialQueryController('google_id', userInfo, payload, res);
         } catch (err) {
-            err.status = httpStatus.INTERNAL_SERVER_ERROR
-            next(err)
+            err.status = httpStatus.INTERNAL_SERVER_ERROR;
+            next(err);
         }
     } catch(error) {
         console.log(error);

@@ -12,7 +12,7 @@ var schema = mongoose.Schema({
     phone: { type: Number },
     address: { type: String },
     user_role: { type: String },
-    google_id: Number,
+    google_id: { type: String },
     facebook_id: { type: String },
     linkedin_id: { type: String },
     github_id: { type: String },
