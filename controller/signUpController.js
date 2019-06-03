@@ -73,7 +73,7 @@ exports.confirmation = async (req, res, next) => {
             await user.save()
             res.status(http.OK).json({
                 "success": statusMsg.success.msg,
-                "message": http.getStatusText(http.OK)
+                "payload": token
             })
         }
     }
@@ -98,6 +98,10 @@ exports.resendVerification = async (req, res, next) => {
         const token = await tokenGenerator.access_token(req.body.email)
         host = req.get('host')
         await email_verify.verifyEmail(user.email, user.first_name, host, token)
+        res.status(http.OK).json({
+            "success": statusMsg.success.msg,
+            "payload": token
+        })
     }
     catch (err) {
         err.status = http.UNAUTHORIZED
