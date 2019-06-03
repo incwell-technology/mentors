@@ -15,11 +15,8 @@ exports.validate = () => {
         body('email', 'Invalid email').isEmail(),
         body('first_name', 'First name should not be empty').not().isEmpty(),
         body('first_name', 'First name should not be number').not().isNumeric(),
-        // body('first_name', 'First name should not contain number').not().isAlphanumeric(),
-        // body('first_name', 'First name should not contain number').blacklist(),
         body('last_name', 'Last name should not be empty').not().isEmpty(),
         body('last_name', 'Last name should not be number').not().isNumeric(),
-        // body('last_name', 'Last name should not contain number').not().isAlphanumeric(),
         body('user_role', 'User role is required').not().isEmpty(),
         body('password', 'Password name should not be empty').not().isEmpty(),
         body('password').custom((value, { req }) => {
@@ -35,6 +32,12 @@ exports.validate = () => {
         //     }
         //     return true;
         // }),
-        body('user_role', 'Invalid user role').isBoolean()
+        body('user_role').custom((value) => {
+            if (value !== 'Mentors' && value !== 'Students') {
+                throw new Error('Invalid user role');
+            }
+            return true;
+        }),
+
     ]
 }

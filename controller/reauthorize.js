@@ -20,9 +20,6 @@ exports.reauthorize = async (req, res, next) => {
         })
     }
     try {
-        let role = null
-        if (req.body.user_role == 1) { role = "Mentor" }
-        else if (req.body.role == 0) { role = "Student" }
         let hash = await bcrypt.hash(req.body.password, SALTING)
         const access_token = await tokenGenerator.access_token(req.body.email)
         const refresh_token = await tokenGenerator.refresh_token(req.body.email)
@@ -30,7 +27,6 @@ exports.reauthorize = async (req, res, next) => {
             first_name: req.body.first_name,
             last_name: req.body.last_name,
             email: req.body.email,
-            user_role: role,
             password: hash,
             refresh_token: refresh_token
         })

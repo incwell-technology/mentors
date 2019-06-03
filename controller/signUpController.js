@@ -27,15 +27,12 @@ exports.create = async (req, res, next) => {
         })
     }
     try {
-        let role = null
-        if (req.body.user_role == 1) { role = "Mentor" }
-        else if (req.body.user_role == 0) { role = "Student" }
-        let hash = await bcrypt.hash(req.body.password, SALTING)
+        const hash = await bcrypt.hash(req.body.password, SALTING)
         let email = await User.findOne({ email: req.body.email })
         if (email) {
             if (typeof email.password === 'undefined') {
                 email.password = hash
-                email.user_role = role
+                email.user_role = req.body.user_role
                 await email.save()
                 const payload = {
                     "data": email
@@ -76,7 +73,7 @@ exports.confirmation = async (req, res, next) => {
             await user.save()
             res.status(http.OK).json({
                 "success": statusMsg.success.msg,
-                "message": http.getStatusText(http.OK)
+                "payload": token
             })
         }
     }
@@ -101,6 +98,10 @@ exports.resendVerification = async (req, res, next) => {
         const token = await tokenGenerator.access_token(req.body.email)
         host = req.get('host')
         await email_verify.verifyEmail(user.email, user.first_name, host, token)
+        res.status(http.OK).json({
+            "success": statusMsg.success.msg,
+            "payload": token
+        })
     }
     catch (err) {
         err.status = http.UNAUTHORIZED

@@ -32,7 +32,7 @@ exports.errorHandler = (err, req, res, next) => {
             }
         })
     }
-    else if (err.status == http.FORBIDDEN)  {
+    else if (err.status == http.FORBIDDEN) {
         return res.status(http.FORBIDDEN).json({
             "success": statusMsg.fail.msg,
             "payload": "",
@@ -42,7 +42,7 @@ exports.errorHandler = (err, req, res, next) => {
             }
         })
     }
-    else{
+    else {
         return res.status(http.INTERNAL_SERVER_ERROR).json({
             "success": statusMsg.fail.msg,
             "payload": "",

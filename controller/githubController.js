@@ -1,8 +1,7 @@
 const request = require('request')
 const http = require('http-status-codes')
-const statusMsg = require('../config/statusMsg')
 const tokenGenerator = require('./authTokenGenerator')
-const socialAuth = require('../dbQuery/socialAuth')
+const socialQuery = require('../controller/socialQueryController')
 
 exports.github = (req, res, next) => {
     github_access_token = req.body.access_token
@@ -28,39 +27,7 @@ exports.github = (req, res, next) => {
                 "data": data
             }
             try {
-                if (await socialAuth.dbQuery.isExistingUser({ github_id: userInfo.id })) {
-                    await socialAuth.dbQuery.pushRefreshToken(userInfo, refresh_token)
-                    return res.status(http.OK).json({
-                        "success": statusMsg.success.msg,
-                        "payload": payload
-                    })
-                }
-                else if (await socialAuth.dbQuery.doesUserExistWithEmail(userInfo)) {
-                    await socialAuth.dbQuery.addSocialId(userInfo, 'github_id')
-                    await socialAuth.dbQuery.pushRefreshToken(userInfo, refresh_token)
-                    console.log('some')
-                    return res.status(http.OK).json({
-                        "success": statusMsg.success.msg,
-                        "payload": payload
-                    })
-                }
-                else if (!userInfo.email) {
-                    return res.status(http.CONFLICT).json({
-                        "success": statusMsg.fail.msg,
-                        "payload": userInfo,
-                        "error": {
-                            "code": http.CONFLICT,
-                            "message": statusMsg.no_email.msg
-                        }
-                    })
-                }
-                else {
-                    await socialAuth.dbQuery.createAccount('github_id', data, refresh_token)
-                    return res.status(http.CREATED).json({
-                        "success": statusMsg.success.msg,
-                        "payload": payload
-                    })
-                }
+                socialQuery.socialQueryController('github_id', data, payload, res)
             }
             catch (err) {
                 err.status = http.INTERNAL_SERVER_ERROR
