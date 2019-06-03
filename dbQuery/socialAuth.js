@@ -30,5 +30,8 @@ exports.dbQuery = {
             refresh_token: refresh_token
         }
         await User.create(user)
+    },
+    retrieveUserInfo: async (email) => {
+        return await User.findOne({email});
     }
 }

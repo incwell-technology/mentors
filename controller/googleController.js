@@ -21,8 +21,7 @@ module.exports.oauthHandler = async (req, res, next) => {
 
         const payload = {
             accessToken,
-            refreshToken,
-            data: userInfo
+            refreshToken
         };
         
         try {
