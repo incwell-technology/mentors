@@ -34,4 +34,9 @@ exports.dbQuery = {
     retrieveUserInfo: async (email) => {
         return await User.findOne({email});
     }
+    await User.create(user)
+  },
+  retrieveUserInfo: async (email) => {
+    return await User.findOne({email});
+}
 }

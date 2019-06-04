@@ -5,12 +5,13 @@ const signupValidation = require('../middleware/signupValidation')
 const google = require('../controller/googleController')
 const linkedin = require('../controller/linkedInController')
 
+const reauthorize = require('../middleware/reauthorizeValidation')
 const Reauthorize = require('../controller/reauthorize')
 
 router.route('/facebook').post(Facebook.facebook)
 router.route('/github').post(Github.github)
-router.route('/reauthorize').post(signupValidation.validate('createUser'), Reauthorize.reauthorize)
 router.route('/google').post(google.oauthHandler);
 router.route('/linkedin').post(linkedin.oauthHandler);
+router.route('/reauthorize').post(reauthorize.validate(), Reauthorize.reauthorize)
 
 module.exports = router;    
