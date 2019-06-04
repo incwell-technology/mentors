@@ -59,13 +59,8 @@ exports.login = async (req, res, next) => {
     }
     else if (!user.passsword) {
       let err = new Error()
-      err.status = http.FORBIDDEN
-      next(err)
-    }
-    else {
-      let err = new Error()
       err.status = http.CONFLICT
-      return next(err)
+      next(err)
     }
   }
   catch (err) {
@@ -103,9 +98,9 @@ exports.refreshToken = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
   try {
-    let user = await User.findOne({ refresh_token: req.body.refresh_token })
-    let decoded = await jwt.verify(req.token, secretKey.token.key)
+    const decoded = await jwt.verify(req.token, secretKey.token.key)
     if (decoded) {
+      let user = await User.findOne({email:decoded.email})
       await user.refresh_token.pull(req.body.refresh_token)
       await user.save()
     }
