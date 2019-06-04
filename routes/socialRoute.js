@@ -1,7 +1,6 @@
 const router = require('express').Router()
 const Facebook = require('../controller/facebookContoller')
 const Github = require('../controller/githubController')
-const signupValidation = require('../middleware/signupValidation')
 const google = require('../controller/googleController')
 const linkedin = require('../controller/linkedInController')
 

@@ -8,6 +8,8 @@ const dotenv = require('dotenv')
 const cors = require('cors')
 const morgan = require('morgan')
 const errorHandler = require('./middleware/errorHandler')
+const account = require('../mentors/routes/account')
+const jwtValidate = require('./middleware/jwtValidation')
 
 dotenv.config({
   path: './config/.env'
@@ -31,4 +33,5 @@ app.use(cors())
 app.use(morgan('combined'))
 app.use('/v1/mentors/', signup)
 app.use('/v1/auth/', social)
+app.use('/v1/account/', jwtValidate.verifyToken, account)
 app.use(errorHandler.errorHandler)
