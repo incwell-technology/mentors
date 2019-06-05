@@ -102,11 +102,12 @@ exports.refreshToken = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
     try {
-        let user = await User.findOne({ refresh_token: req.body.refresh_token })
-        let decoded = await jwt.verify(req.token, secretKey.token.key)
-        if (decoded) {
-            await user.refresh_token.pull(req.body.refresh_token)
-            await user.save()
+        if (res.locals.email) {
+          let user = await User.findOne({
+            email: res.locals.email
+          })
+          await user.refresh_token.pull(req.body.refresh_token)
+          await user.save()
         }
         res.status(http.OK).json({
             "success": statusMsg.success.msg,
