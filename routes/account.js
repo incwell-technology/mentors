@@ -7,6 +7,6 @@ const expressValidator = require('express-validator');
 const app = express();
 app.use(expressValidator());
 
-router.put('/password', password.validate(), account.changePassword);
+router.route('/password').put(password.validate(), account.changePassword);
 
 module.exports = router;

@@ -38,7 +38,7 @@ exports.errorHandler = (err, req, res, next) => {
             "payload": "",
             "error": {
                 "code": http.FORBIDDEN,
-                "message": statusMsg.error.msg
+                "message": http.getStatusText(http.FORBIDDEN)
             }
         })
     }
@@ -48,7 +48,7 @@ exports.errorHandler = (err, req, res, next) => {
             "payload": "",
             "error": {
                 "code": http.INTERNAL_SERVER_ERROR,
-                "message": statusMsg.error.msg
+                "message": http.getStatusText(http.INTERNAL_SERVER_ERROR)
             }
         })
     }
