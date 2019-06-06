@@ -1,7 +1,4 @@
 const { body } = require('express-validator/check');
-const User = require('../models/user');
-const SALTING = 10;
-const bcrypt = require('bcrypt');
 
 module.exports.validate = () => {
     return [
