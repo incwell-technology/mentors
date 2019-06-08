@@ -18,7 +18,7 @@ module.exports = {
         msg: "User is not verified"
     },
     password_not_match: {
-        msg: "Invalid Password"
+        msg: "Invalid Username/Password"
     },
     error: {
         msg: "Some error"
@@ -28,5 +28,8 @@ module.exports = {
     },
     no_email: {
         msg: "Email not authorized"
-    }
+    },
+    email_verfiy: {
+        msg: "Email has been verified"
+    },
 }

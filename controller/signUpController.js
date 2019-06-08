@@ -71,13 +71,14 @@ exports.confirmation = async (req, res, next) => {
       })
       user.verified_email = true
       await user.save()
-      res.status(http.OK).json({
+      return res.status(http.OK).json({
         "success": statusMsg.success.msg,
-        "payload": token
+        "message": statusMsg.email_verfiy.msg
       })
     }
   }
   catch (err) {
+    console.log(err)
     err.status = http.UNAUTHORIZED
     next(err)
   }

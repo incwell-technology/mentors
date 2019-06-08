@@ -11,6 +11,14 @@ dotenv.config({
   path: './config/.env'
 })
 const tokenGenerator = require('./authTokenGenerator')
+const response = {
+  success: statusMsg.fail.msg,
+        payload: { },
+        error: {
+          code: http.BAD_REQUEST,
+          message: statusMsg.password_not_match.msg
+        }
+}
 
 exports.login = async (req, res, next) => {
   const errors = validationResult(req)
@@ -27,20 +35,11 @@ exports.login = async (req, res, next) => {
   try {
     let user = await User.findOne({ email: req.body.email })
     if (!user) {
-      let err = new Error()
-      err.status = http.BAD_REQUEST
-      return next(err)
+      return res.status(http.BAD_REQUEST).json(response)
     }
     let result = await bcrypt.compare(req.body.password, user.password)
     if (!result) {
-      return res.status(http.BAD_REQUEST).json({
-        success: statusMsg.fail.msg,
-        payload: { },
-        error: {
-          code: http.BAD_REQUEST,
-          message: statusMsg.password_not_match.msg
-        }
-      })
+      return res.status(http.BAD_REQUEST).json(response)
     }
     if (user.verified_email && user.password) {
       const access_token = await tokenGenerator.access_token(req.body.email)
@@ -64,8 +63,7 @@ exports.login = async (req, res, next) => {
     }
   }
   catch (err) {
-    err.status = http.FORBIDDEN
-    next(err)
+    return res.status(http.BAD_REQUEST).json(response)
   }
 }
 
