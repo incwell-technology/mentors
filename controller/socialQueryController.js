@@ -7,8 +7,8 @@ exports.socialQueryController = async (key, userInfo, payload, res) => {
         await socialAuth.dbQuery.pushRefreshToken(userInfo.email, payload.refreshToken)
         payload.data = await socialAuth.dbQuery.retrieveUserInfo(userInfo.email)
         return res.status(http.OK).json({
-            "success": statusMsg.success.msg,
-            "payload": payload
+            success: statusMsg.success.msg,
+            payload: payload
         })
     }
     else if (await socialAuth.dbQuery.doesUserExistWithEmail(userInfo.email)) {
@@ -17,17 +17,17 @@ exports.socialQueryController = async (key, userInfo, payload, res) => {
         await socialAuth.dbQuery.pushRefreshToken(userInfo.email, payload.refreshToken)
         payload.data = await socialAuth.dbQuery.retrieveUserInfo(userInfo.email)
         return res.status(http.OK).json({
-            "success": statusMsg.success.msg,
-            "payload": payload
+            success: statusMsg.success.msg,
+            payload: payload
         })
     }
     else if (!userInfo.email) {
         return res.status(http.CONFLICT).json({
-            "success": statusMsg.fail.msg,
-            "payload": userInfo,
-            "error": {
-                "code": http.CONFLICT,
-                "message": statusMsg.no_email.msg
+            success: statusMsg.fail.msg,
+            payload: userInfo,
+            error: {
+                code: http.CONFLICT,
+                message: statusMsg.no_email.msg
             }
         })
     }
@@ -35,8 +35,8 @@ exports.socialQueryController = async (key, userInfo, payload, res) => {
         await socialAuth.dbQuery.createAccount(key, userInfo, payload.refreshToken)
         payload.data = await socialAuth.dbQuery.retrieveUserInfo(userInfo.email)
         return res.status(http.CREATED).json({
-            "success": statusMsg.success.msg,
-            "payload": payload
+            success: statusMsg.success.msg,
+            payload: payload
         })
     }
 }
