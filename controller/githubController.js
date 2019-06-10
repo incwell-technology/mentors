@@ -5,7 +5,7 @@ const socialQuery = require('../controller/socialQueryController')
 
 exports.github = (req, res, next) => {
   try {
-    github_access_token = req.body.access_token
+    github_access_token = req.body.accessToken
     request(`https://api.github.com/user?access_token=${github_access_token}`, {
       headers: {
         'user-agent': 'Mentors'
